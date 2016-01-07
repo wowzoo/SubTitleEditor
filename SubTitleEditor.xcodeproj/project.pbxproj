@@ -7,19 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FF11BD161C3009B900A040F4 /* SubTitleDocFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF11BD151C3009B900A040F4 /* SubTitleDocFactory.swift */; };
+		FF709B451C20EB2700340743 /* SubTitleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF709B441C20EB2700340743 /* SubTitleData.swift */; };
+		FF8B49B61C2EC64B00223536 /* SubTitleDoc4Smi.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8B49B51C2EC64B00223536 /* SubTitleDoc4Smi.swift */; };
+		FF8B49B81C2EC84D00223536 /* SubTitleDoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8B49B71C2EC84D00223536 /* SubTitleDoc.swift */; };
+		FFAB435F1C34D5AF00E275E9 /* SubTitleTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFAB435E1C34D5AF00E275E9 /* SubTitleTime.swift */; };
 		FFC406D91C1FEB3A0054B43B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC406D81C1FEB3A0054B43B /* AppDelegate.swift */; };
 		FFC406DB1C1FEB3A0054B43B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC406DA1C1FEB3A0054B43B /* ViewController.swift */; };
 		FFC406DD1C1FEB3A0054B43B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FFC406DC1C1FEB3A0054B43B /* Assets.xcassets */; };
 		FFC406E01C1FEB3A0054B43B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FFC406DE1C1FEB3A0054B43B /* Main.storyboard */; };
+		FFD78D821C22AF0B0061284A /* SubTitleDoc4Srt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD78D811C22AF0B0061284A /* SubTitleDoc4Srt.swift */; };
+		FFD78D841C22BA100061284A /* SubTitleReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD78D831C22BA100061284A /* SubTitleReader.swift */; };
+		FFE9513B1C3D1981001BEB9A /* SubTitleTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE9513A1C3D1981001BEB9A /* SubTitleTableView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FF11BD151C3009B900A040F4 /* SubTitleDocFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleDocFactory.swift; sourceTree = "<group>"; };
+		FF709B441C20EB2700340743 /* SubTitleData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleData.swift; sourceTree = "<group>"; };
+		FF8B49B51C2EC64B00223536 /* SubTitleDoc4Smi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleDoc4Smi.swift; sourceTree = "<group>"; };
+		FF8B49B71C2EC84D00223536 /* SubTitleDoc.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleDoc.swift; sourceTree = "<group>"; };
+		FFAB435E1C34D5AF00E275E9 /* SubTitleTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleTime.swift; sourceTree = "<group>"; };
 		FFC406D51C1FEB3A0054B43B /* SubTitleEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubTitleEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FFC406D81C1FEB3A0054B43B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FFC406DA1C1FEB3A0054B43B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		FFC406DC1C1FEB3A0054B43B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FFC406DF1C1FEB3A0054B43B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		FFC406E11C1FEB3A0054B43B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FFD78D811C22AF0B0061284A /* SubTitleDoc4Srt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleDoc4Srt.swift; sourceTree = "<group>"; };
+		FFD78D831C22BA100061284A /* SubTitleReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleReader.swift; sourceTree = "<group>"; };
+		FFE9513A1C3D1981001BEB9A /* SubTitleTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleTableView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +49,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FF709B421C20EACE00340743 /* GUI */ = {
+			isa = PBXGroup;
+			children = (
+				FFC406D81C1FEB3A0054B43B /* AppDelegate.swift */,
+				FFC406DA1C1FEB3A0054B43B /* ViewController.swift */,
+				FFC406DE1C1FEB3A0054B43B /* Main.storyboard */,
+				FFE9513A1C3D1981001BEB9A /* SubTitleTableView.swift */,
+			);
+			name = GUI;
+			sourceTree = "<group>";
+		};
+		FF709B431C20EAD600340743 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FFD78D831C22BA100061284A /* SubTitleReader.swift */,
+				FF709B441C20EB2700340743 /* SubTitleData.swift */,
+				FFD78D811C22AF0B0061284A /* SubTitleDoc4Srt.swift */,
+				FF8B49B51C2EC64B00223536 /* SubTitleDoc4Smi.swift */,
+				FF8B49B71C2EC84D00223536 /* SubTitleDoc.swift */,
+				FF11BD151C3009B900A040F4 /* SubTitleDocFactory.swift */,
+				FFAB435E1C34D5AF00E275E9 /* SubTitleTime.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		FFC406CC1C1FEB3A0054B43B = {
 			isa = PBXGroup;
 			children = (
@@ -52,10 +93,9 @@
 		FFC406D71C1FEB3A0054B43B /* SubTitleEditor */ = {
 			isa = PBXGroup;
 			children = (
-				FFC406D81C1FEB3A0054B43B /* AppDelegate.swift */,
-				FFC406DA1C1FEB3A0054B43B /* ViewController.swift */,
+				FF709B431C20EAD600340743 /* Model */,
+				FF709B421C20EACE00340743 /* GUI */,
 				FFC406DC1C1FEB3A0054B43B /* Assets.xcassets */,
-				FFC406DE1C1FEB3A0054B43B /* Main.storyboard */,
 				FFC406E11C1FEB3A0054B43B /* Info.plist */,
 			);
 			path = SubTitleEditor;
@@ -131,8 +171,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFAB435F1C34D5AF00E275E9 /* SubTitleTime.swift in Sources */,
+				FF8B49B81C2EC84D00223536 /* SubTitleDoc.swift in Sources */,
+				FFD78D841C22BA100061284A /* SubTitleReader.swift in Sources */,
 				FFC406DB1C1FEB3A0054B43B /* ViewController.swift in Sources */,
+				FF709B451C20EB2700340743 /* SubTitleData.swift in Sources */,
+				FFD78D821C22AF0B0061284A /* SubTitleDoc4Srt.swift in Sources */,
 				FFC406D91C1FEB3A0054B43B /* AppDelegate.swift in Sources */,
+				FF11BD161C3009B900A040F4 /* SubTitleDocFactory.swift in Sources */,
+				FF8B49B61C2EC64B00223536 /* SubTitleDoc4Smi.swift in Sources */,
+				FFE9513B1C3D1981001BEB9A /* SubTitleTableView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,6 +321,7 @@
 				FFC406E61C1FEB3A0054B43B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
