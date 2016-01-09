@@ -9,17 +9,7 @@
 import Cocoa
 
 class SubTitleDoc4Srt: SubTitleDoc {
-    //var data = [SubTitleData]()
     var url: NSURL!
-    
-    let encList = [
-        //utf8
-        NSUTF8StringEncoding,
-        //euc-kr
-        CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.EUC_KR.rawValue)),
-        //cp949
-        CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.DOSKorean.rawValue))
-    ]
     
     init(fileURL: NSURL) {
         self.url = fileURL
@@ -31,10 +21,49 @@ class SubTitleDoc4Srt: SubTitleDoc {
             throw SubTitleError.InvalidURLPath
         }
         
-        var encIndex: Int = 0
-        var delimiter = "\r\n"
         var subList: [String] = [String]()
+
+        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
+        let tmpData = fileHandle.readDataToEndOfFile()
+        fileHandle.closeFile()
         
+        var convertedString: NSString?
+        let enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
+        
+        print(NSString.localizedNameOfStringEncoding(enc) + " is used")
+        
+        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
+            throw SubTitleError.ParseError(message: "Separating Newline Error")
+        }
+        
+        /* SRT File Format
+        It consists of four parts, all in text..
+        
+        1. A numeric counter identifying each sequential subtitle
+        2. The time that the subtitle should appear on the screen, followed by --> and the time it should disappear
+        3. Subtitle text itself on one or more lines
+        4. A blank line containing no text, indicating the end of this subtitle[9]
+        */
+        var count: Int = 1
+        
+        for line in lines {
+            if line.isEmpty {
+                continue
+            } else if line == String(count) {
+                count++
+                continue
+            } else {
+                subList.append(line)
+            }
+        }
+        
+        do {
+            return try parseSRT(subList)
+        } catch let error {
+            throw error
+        }
+        
+/*
         while encIndex < encList.count {
             guard let sReader = SubTitleReader(path: path, delimiter: delimiter, encoding: encList[encIndex]) else {
                 throw SubTitleError.StreamOpenError
@@ -94,6 +123,7 @@ class SubTitleDoc4Srt: SubTitleDoc {
         } catch let error {
             throw error
         }
+*/
     }
     
     func parseSRT(subList: [String]) throws -> [SubTitleData] {

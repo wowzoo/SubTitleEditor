@@ -17,7 +17,6 @@
 		FFC406DD1C1FEB3A0054B43B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FFC406DC1C1FEB3A0054B43B /* Assets.xcassets */; };
 		FFC406E01C1FEB3A0054B43B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FFC406DE1C1FEB3A0054B43B /* Main.storyboard */; };
 		FFD78D821C22AF0B0061284A /* SubTitleDoc4Srt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD78D811C22AF0B0061284A /* SubTitleDoc4Srt.swift */; };
-		FFD78D841C22BA100061284A /* SubTitleReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD78D831C22BA100061284A /* SubTitleReader.swift */; };
 		FFE9513B1C3D1981001BEB9A /* SubTitleTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE9513A1C3D1981001BEB9A /* SubTitleTableView.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,7 +33,6 @@
 		FFC406DF1C1FEB3A0054B43B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		FFC406E11C1FEB3A0054B43B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FFD78D811C22AF0B0061284A /* SubTitleDoc4Srt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleDoc4Srt.swift; sourceTree = "<group>"; };
-		FFD78D831C22BA100061284A /* SubTitleReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleReader.swift; sourceTree = "<group>"; };
 		FFE9513A1C3D1981001BEB9A /* SubTitleTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubTitleTableView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -63,7 +61,6 @@
 		FF709B431C20EAD600340743 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				FFD78D831C22BA100061284A /* SubTitleReader.swift */,
 				FF709B441C20EB2700340743 /* SubTitleData.swift */,
 				FFD78D811C22AF0B0061284A /* SubTitleDoc4Srt.swift */,
 				FF8B49B51C2EC64B00223536 /* SubTitleDoc4Smi.swift */,
@@ -173,7 +170,6 @@
 			files = (
 				FFAB435F1C34D5AF00E275E9 /* SubTitleTime.swift in Sources */,
 				FF8B49B81C2EC84D00223536 /* SubTitleDoc.swift in Sources */,
-				FFD78D841C22BA100061284A /* SubTitleReader.swift in Sources */,
 				FFC406DB1C1FEB3A0054B43B /* ViewController.swift in Sources */,
 				FF709B451C20EB2700340743 /* SubTitleData.swift in Sources */,
 				FFD78D821C22AF0B0061284A /* SubTitleDoc4Srt.swift in Sources */,

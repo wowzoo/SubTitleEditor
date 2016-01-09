@@ -18,6 +18,8 @@ class ViewController: NSViewController {
     
     let subTitle: String = "subTitle"
     
+    var undoData: Array<[SubTitleData]> = Array<[SubTitleData]>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -55,6 +57,37 @@ class ViewController: NSViewController {
             output.logging("something goes wrong", color: NSColor.redColor())
         }
     }
+    
+    func addItems(items: AnyObject) {
+        //undoManager?.prepareWithInvocationTarget(self).remove(rows)
+        //undoManager?.setActionName("actions.add")
+        print("addItems")
+        
+        for item: SubTitleData in items as! [SubTitleData] {
+            print(item.text)
+        }
+        
+    }
+    
+    func removeItems(rows: NSIndexSet) {
+        var items: [SubTitleData] = [SubTitleData]()
+        
+        self.tableView.removeRowsAtIndexes(rows, withAnimation: .SlideUp)
+        
+        rows.enumerateIndexesWithOptions(.Reverse) {
+            (index: Int, _) -> Void in
+            
+            let datum = self.subTitleItmes?.removeAtIndex(index)
+            print(datum!.text)
+            items.append(datum!)
+        }
+        
+        //undoManager?.registerUndoWithTarget(self, selector: Selector("addItems:"), object: rows)
+        //undoManager?.setActionName(NSLocalizedString("actions.remove", comment: "Remove Items"))
+        
+        undoManager?.prepareWithInvocationTarget(self).addItems(items)
+        undoManager?.setActionName(NSLocalizedString("actions.remove", comment: "Remove Items"))
+    }
 }
 
 extension ViewController: NSTableViewDataSource {
@@ -91,6 +124,7 @@ extension ViewController: NSTableViewDataSource {
             var isDirectory = ObjCBool(false)
             if NSFileManager.defaultManager().fileExistsAtPath(url.path!, isDirectory: &isDirectory) {
                 if !isDirectory {
+                    
                     //only srt file allow
                     guard let ext = url.pathExtension else {
                         return .None
@@ -261,20 +295,12 @@ extension ViewController {
             self.representedObject = openPanel.URL
         }
     }
-
+    
     @IBAction func removeLine(sender: AnyObject) {
         print("removeLine")
-        
-        let rows = tableView.selectedRowIndexes
-        rows.enumerateIndexesWithOptions(.Reverse) {
-            (index: Int, _) -> Void in
-            
-            self.subTitleItmes?.removeAtIndex(index)
-        }
-        
-        self.tableView.reloadData()
+        let rows = self.tableView.selectedRowIndexes
+        self.removeItems(rows)
     }
-    
 }
 
 extension NSTextView {

@@ -11,99 +11,67 @@ import Cocoa
 class SubTitleDoc4Smi: SubTitleDoc {
     var url: NSURL!
     
-    let encList = [
-        NSUTF8StringEncoding,
-        CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.EUC_KR.rawValue)),
-        CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(CFStringEncodings.DOSKorean.rawValue))
-    ]
-    
     init(fileURL: NSURL) {
         self.url = fileURL
     }
-
+    
     func getSubTitleData() throws -> [SubTitleData] {
         
         guard let path = url.path else {
             throw SubTitleError.InvalidURLPath
         }
         
-        var encIndex: Int = 0
-        var delimiter = "\r\n"
-        //var subList: Array<String> = Array<String>()
         var subList: [String] = [String]()
         
-        while encIndex < encList.count {
-            print("using " + NSString.localizedNameOfStringEncoding(encList[encIndex]))
-            guard let sReader = SubTitleReader(path: path, delimiter: delimiter, encoding: encList[encIndex]) else {
-                throw SubTitleError.StreamOpenError
-            }
-            
-            defer {
-                print("file closed")
-                sReader.close()
-            }
-            
-            do {
-                var collectedString: String = ""
-                
-                while let line = try sReader.nextLine() {
-                    //print(line)
-                    
-                    if let range = line.rangeOfString("<SYNC Start", options: .CaseInsensitiveSearch) {
-                        // if the line does not start with <SYNC Start
-                        if range.startIndex != line.startIndex {
-                            if !collectedString.isEmpty {
-                                collectedString += line.substringToIndex(range.startIndex)
-                                subList.append(collectedString)
-                            }
-                            collectedString = line.substringFromIndex(range.startIndex)
-                        } else {
-                            if !collectedString.isEmpty {
-                                subList.append(collectedString)
-                            }
-                            collectedString = line
-                        }
-                    } else if let range = line.rangeOfString("</BODY>", options: .CaseInsensitiveSearch) {
-                        if range.startIndex != line.startIndex {
-                            collectedString += line.substringToIndex(range.startIndex)
-                        }
-                        
+        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
+        let tmpData = fileHandle.readDataToEndOfFile()
+        fileHandle.closeFile()
+        
+        var convertedString: NSString?
+        let enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
+        
+        print(NSString.localizedNameOfStringEncoding(enc) + " is used")
+        
+        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
+            throw SubTitleError.ParseError(message: "Separating Newline Error")
+        }
+        
+        var collectedString: String = ""
+        
+        for line in lines {
+            //print(line)
+            if let range = line.rangeOfString("<SYNC Start", options: .CaseInsensitiveSearch) {
+                // if the line does not start with <SYNC Start
+                if range.startIndex != line.startIndex {
+                    if !collectedString.isEmpty {
+                        collectedString += line.substringToIndex(range.startIndex)
                         subList.append(collectedString)
-                        collectedString = ""
-                    } else {
-                        if !collectedString.isEmpty {
-                            collectedString += line
-                        }
                     }
+                    collectedString = line.substringFromIndex(range.startIndex)
+                } else {
+                    if !collectedString.isEmpty {
+                        subList.append(collectedString)
+                    }
+                    collectedString = line
+                }
+            } else if let range = line.rangeOfString("</BODY>", options: .CaseInsensitiveSearch) {
+                if range.startIndex != line.startIndex {
+                    collectedString += line.substringToIndex(range.startIndex)
                 }
                 
-            } catch SubTitleReaderError.EndOfFile {
-                print("End Of File (total lines : \(sReader.lineCount))")
-                break
-            } catch SubTitleReaderError.NoMoreLines {
-                print("No More Lines (total lines : \(sReader.lineCount))")
-                break
-            } catch SubTitleReaderError.InvalidEncoding(let usedEncoding) {
-                print(NSString.localizedNameOfStringEncoding(usedEncoding) + " is invalid encoding")
-                subList.removeAll()
-                //increase encoding index
-                encIndex++
-                continue
-            } catch SubTitleReaderError.InvalidNewline(let delim) {
-                print(String(delim) + "is invalid newline")
-                subList.removeAll()
-                //change newline character
-                delimiter = "\n"
-                continue
-            } catch let error as NSError {
-                throw SubTitleError.UnknownError(error: error)
+                subList.append(collectedString)
+                collectedString = ""
+            } else {
+                if !collectedString.isEmpty {
+                    collectedString += line
+                }
             }
         }
         
         do {
             return try parseSMI(subList)
         } catch let error {
-            throw error 
+            throw error
         }
         
     }
@@ -113,7 +81,7 @@ class SubTitleDoc4Smi: SubTitleDoc {
             throw SubTitleError.ParseError(message: "This is not SMI format file")
         }
         
-        let regex = "^<\\s*SYNC\\s+Start\\s*=\\s*([0-9]+)\\s*><\\s*P\\s+Class\\s*=\\s*[a-z]{2,4}\\s*>(<br>)*(.*)"
+        let regex = "^<\\s*SYNC\\s+Start\\s*=\\s*([0-9]+)\\s*><\\s*P\\s+Class\\s*=\\s*[a-z]+\\s*>(<br>)*(.*)"
         var data = [SubTitleData]()
         
         for subLine in subList {
@@ -143,7 +111,9 @@ class SubTitleDoc4Smi: SubTitleDoc {
             
             //print(millisec)
             //print(text)
-            if text.lowercaseString == "&nbsp;" || text.lowercaseString == "&nbsp" {
+            if text.isEmpty {
+                continue
+            } else if text.lowercaseString == "&nbsp;" || text.lowercaseString == "&nbsp" {
                 let lastData: SubTitleData! = data.popLast()
                 let eTime = SubTitleTime(milliseconds: millisec)
                 
@@ -167,9 +137,9 @@ class SubTitleDoc4Smi: SubTitleDoc {
                 }
                 let sTime = SubTitleTime(milliseconds: millisec)
                 
-                if text.isEmpty {
-                    text = " "
-                }
+                //if text.isEmpty {
+                //    text = " "
+                //}
                 
                 let subData = SubTitleData(start: sTime.getReadableTime(), end: "", text: text, duration: "")
                 data.append(subData)
