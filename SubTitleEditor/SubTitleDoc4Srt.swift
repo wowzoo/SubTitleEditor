@@ -15,118 +15,13 @@ class SubTitleDoc4Srt: SubTitleDoc {
         self.url = fileURL
     }
     
-    func getSubTitleData() throws -> [SubTitleData] {
-        
+    func parse() throws -> [SubTitleData] {
         guard let path = url.path else {
             throw SubTitleError.InvalidURLPath
         }
         
-        var subList: [String] = [String]()
-
-        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
-        let tmpData = fileHandle.readDataToEndOfFile()
-        fileHandle.closeFile()
+        let subList: [String] = try getManagedLines(path)
         
-        var convertedString: NSString?
-        let enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
-        
-        print(NSString.localizedNameOfStringEncoding(enc) + " is used")
-        
-        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
-            throw SubTitleError.ParseError(message: "Separating Newline Error")
-        }
-        
-        /* SRT File Format
-        It consists of four parts, all in text..
-        
-        1. A numeric counter identifying each sequential subtitle
-        2. The time that the subtitle should appear on the screen, followed by --> and the time it should disappear
-        3. Subtitle text itself on one or more lines
-        4. A blank line containing no text, indicating the end of this subtitle[9]
-        */
-        var count: Int = 1
-        
-        for line in lines {
-            if line.isEmpty {
-                continue
-            } else if line == String(count) {
-                count++
-                continue
-            } else {
-                subList.append(line)
-            }
-        }
-        
-        do {
-            return try parseSRT(subList)
-        } catch let error {
-            throw error
-        }
-        
-/*
-        while encIndex < encList.count {
-            guard let sReader = SubTitleReader(path: path, delimiter: delimiter, encoding: encList[encIndex]) else {
-                throw SubTitleError.StreamOpenError
-            }
-            
-            defer {
-                print("file closed")
-                sReader.close()
-            }
-            
-            /* SRT File Format
-            It consists of four parts, all in text..
-            
-            1. A numeric counter identifying each sequential subtitle
-            2. The time that the subtitle should appear on the screen, followed by --> and the time it should disappear
-            3. Subtitle text itself on one or more lines
-            4. A blank line containing no text, indicating the end of this subtitle[9]
-            */
-            var count: Int = 1
-            
-            do {
-                while let line = try sReader.nextLine() {
-                    
-                    if line.isEmpty {
-                        continue
-                    } else if line == String(count) {
-                        count++
-                        continue
-                    } else {
-                        subList.append(line)
-                    }
-                }
-                
-            } catch SubTitleReaderError.EndOfFile {
-                print("End Of File (total lines : \(sReader.lineCount))")
-                break
-            } catch SubTitleReaderError.NoMoreLines {
-                print("No More Lines (total lines : \(sReader.lineCount))")
-                break
-            } catch SubTitleReaderError.InvalidEncoding(let usedEncoding) {
-                print(NSString.localizedNameOfStringEncoding(usedEncoding) + " is invalid encoding")
-                subList.removeAll()
-                encIndex++
-                continue
-            } catch SubTitleReaderError.InvalidNewline(let delim) {
-                print(String(delim) + " is invalid newline")
-                subList.removeAll()
-                delimiter = "\n"
-                continue
-            } catch let error as NSError {
-                throw SubTitleError.UnknownError(error: error)
-            }
-        }
-        
-        do {
-            return try parseSRT(subList)
-        } catch let error {
-            throw error
-        }
-*/
-    }
-    
-    func parseSRT(subList: [String]) throws -> [SubTitleData] {
         //var sequentialNumber: Int = 1
         var startTime: String = ""
         var endTime: String = ""
@@ -138,6 +33,7 @@ class SubTitleDoc4Srt: SubTitleDoc {
         var data: [SubTitleData] = [SubTitleData]()
         var datum: SubTitleData? = nil
         
+        var itemNum: Int = 0
         for subLine in subList {
             //print(subLine)
             let matches = subLine.getMatches(regex4Interval, options: [])
@@ -170,7 +66,7 @@ class SubTitleDoc4Srt: SubTitleDoc {
                 let eTime = SubTitleTime(timeInStr: endTime)
                 duration = SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
                 
-                datum = SubTitleData(start: startTime, end: endTime, text: "", duration: duration)
+                datum = SubTitleData(num: itemNum++, start: startTime, end: endTime, text: "", duration: duration)
                 
             } else {
                 text += "<br>\(subLine)"
@@ -192,12 +88,50 @@ class SubTitleDoc4Srt: SubTitleDoc {
             let eTime = SubTitleTime(timeInStr: startTime) + 1000
             endTime = eTime.getReadableTime()
             
-            let subData = SubTitleData(start: startTime, end: endTime, text: " ", duration: "00:00:01,000")
+            let subData = SubTitleData(num: itemNum, start: startTime, end: endTime, text: " ", duration: "00:00:01,000")
             
             data.append(subData)
         }
         
         return data
     }
-
+    
+    func getManagedLines(path: String) throws -> [String] {
+        var subList: [String] = [String]()
+        
+        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
+        let tmpData = fileHandle.readDataToEndOfFile()
+        fileHandle.closeFile()
+        
+        var convertedString: NSString?
+        let enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
+        
+        print(NSString.localizedNameOfStringEncoding(enc) + " is used")
+        
+        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
+            throw SubTitleError.ParseError(message: "Separating Newline Error")
+        }
+        
+        /* SRT File Format
+        * It consists of four parts, all in text..
+        * 1. A numeric counter identifying each sequential subtitle
+        * 2. The time that the subtitle should appear on the screen, followed by --> and the time it should disappear
+        * 3. Subtitle text itself on one or more lines
+        * 4. A blank line containing no text, indicating the end of this subtitle[9]
+        */
+        var count: Int = 1
+        
+        for line in lines {
+            if line.isEmpty {
+                continue
+            } else if line == String(count) {
+                count++
+                continue
+            } else {
+                subList.append(line)
+            }
+        }
+        
+        return subList
+    }
 }

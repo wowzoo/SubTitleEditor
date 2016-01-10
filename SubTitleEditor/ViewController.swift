@@ -18,13 +18,8 @@ class ViewController: NSViewController {
     
     let subTitle: String = "subTitle"
     
-    var undoData: Array<[SubTitleData]> = Array<[SubTitleData]>()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //tableView.setDelegate(self)
-        //tableView.setDataSource(self)
         
         // Do any additional setup after loading the view.
         tableView.registerForDraggedTypes([subTitle, NSURLPboardType])
@@ -45,7 +40,7 @@ class ViewController: NSViewController {
     
     func reloadSubTitleData() {
         do {
-            subTitleItmes = try subTitleDoc?.getSubTitleData()
+            subTitleItmes = try subTitleDoc?.parse()
             tableView.reloadData()
         } catch SubTitleError.ParseError(let message) {
             output.logging(message, color: NSColor.redColor())
@@ -59,33 +54,39 @@ class ViewController: NSViewController {
     }
     
     func addItems(items: AnyObject) {
-        //undoManager?.prepareWithInvocationTarget(self).remove(rows)
-        //undoManager?.setActionName("actions.add")
         print("addItems")
         
+        let rows: NSMutableIndexSet = NSMutableIndexSet()
         for item: SubTitleData in items as! [SubTitleData] {
-            print(item.text)
+            print("\(item.num) : \(item.text)")
+            subTitleItmes?.insert(item, atIndex: item.num)
+            rows.addIndex(item.num)
         }
         
+        self.tableView.reloadData()
+        
+        undoManager?.prepareWithInvocationTarget(self).removeItems(rows)
+        undoManager?.setActionName(NSLocalizedString("actions.add", comment: "Add Items"))
     }
     
     func removeItems(rows: NSIndexSet) {
+        print("removeItems")
+        
         var items: [SubTitleData] = [SubTitleData]()
         
-        self.tableView.removeRowsAtIndexes(rows, withAnimation: .SlideUp)
+        //self.tableView.removeRowsAtIndexes(rows, withAnimation: .SlideUp)
         
         rows.enumerateIndexesWithOptions(.Reverse) {
             (index: Int, _) -> Void in
             
-            let datum = self.subTitleItmes?.removeAtIndex(index)
-            print(datum!.text)
-            items.append(datum!)
+            let datum: SubTitleData! = self.subTitleItmes?.removeAtIndex(index)
+            print("\(datum.num) : \(datum.text)")
+            items.append(datum)
         }
         
-        //undoManager?.registerUndoWithTarget(self, selector: Selector("addItems:"), object: rows)
-        //undoManager?.setActionName(NSLocalizedString("actions.remove", comment: "Remove Items"))
+        self.tableView.reloadData()
         
-        undoManager?.prepareWithInvocationTarget(self).addItems(items)
+        undoManager?.prepareWithInvocationTarget(self).addItems(items.reverse())
         undoManager?.setActionName(NSLocalizedString("actions.remove", comment: "Remove Items"))
     }
 }
@@ -96,7 +97,7 @@ extension ViewController: NSTableViewDataSource {
     }
     
     func tableView(tableView: NSTableView, writeRowsWithIndexes: NSIndexSet, toPasteboard: NSPasteboard) -> Bool {
-        print("writeRowsWithIndexes")
+        //print("writeRowsWithIndexes")
         
         let data = NSKeyedArchiver.archivedDataWithRootObject([writeRowsWithIndexes])
         toPasteboard.declareTypes([subTitle], owner:self)
@@ -107,7 +108,7 @@ extension ViewController: NSTableViewDataSource {
     
     func tableView(tableView: NSTableView, validateDrop info: NSDraggingInfo, proposedRow row: Int, proposedDropOperation dropOperation: NSTableViewDropOperation) -> NSDragOperation
     {
-        print("validateDrop")
+        //print("validateDrop")
         
         //get the file URLs from the pasteboard
         let pb: NSPasteboard = info.draggingPasteboard()
@@ -144,7 +145,7 @@ extension ViewController: NSTableViewDataSource {
     func tableView(tableView: NSTableView, acceptDrop info: NSDraggingInfo, row: Int,
         dropOperation: NSTableViewDropOperation) -> Bool
     {
-        print("acceptDrop")
+        //print("acceptDrop")
         
         let pb = info.draggingPasteboard()
         
@@ -168,11 +169,13 @@ extension ViewController: NSTableViewDataSource {
                 
                 //insert moving item
                 subTitleItmes!.insert(item, atIndex: row)
-                tableView.insertRowsAtIndexes(NSIndexSet(index: row), withAnimation: .SlideLeft)
+                //tableView.insertRowsAtIndexes(NSIndexSet(index: row), withAnimation: .SlideLeft)
                 
                 //remove previous item
                 subTitleItmes!.removeAtIndex(currentRow)
-                tableView.removeRowsAtIndexes(NSIndexSet(index: currentRow), withAnimation: .EffectFade)
+                //tableView.removeRowsAtIndexes(NSIndexSet(index: currentRow), withAnimation: .EffectFade)
+                
+                tableView.reloadData()
                 
                 return true
                 
@@ -187,11 +190,13 @@ extension ViewController: NSTableViewDataSource {
                 
                 //remove item
                 subTitleItmes!.removeAtIndex(currentRow)
-                tableView.removeRowsAtIndexes(NSIndexSet(index: currentRow), withAnimation: .EffectFade)
+                //tableView.removeRowsAtIndexes(NSIndexSet(index: currentRow), withAnimation: .EffectFade)
                 
                 //insert moving item
                 subTitleItmes!.insert(item, atIndex: row)
-                tableView.insertRowsAtIndexes(NSIndexSet(index: row), withAnimation: .SlideRight)
+                //tableView.insertRowsAtIndexes(NSIndexSet(index: row), withAnimation: .SlideRight)
+                
+                tableView.reloadData()
                 
                 return true
             }
@@ -217,6 +222,7 @@ extension ViewController: NSTableViewDelegate {
         
         if tableColumn == tableView.tableColumns[0] {
             //text = item.num
+            item.num = row
             text = String(row+1)
             cellIdentifier = "eNumber"
         } else if tableColumn == tableView.tableColumns[1] {
@@ -246,6 +252,18 @@ extension ViewController {
     @IBAction func clearTable(sender: AnyObject) {
         self.subTitleItmes?.removeAll()
         self.tableView.reloadData()
+        
+        undoManager?.removeAllActions()
+    }
+    
+    @IBAction func onEnterInTextField(sender: NSTextField) {
+        let selectedRow = self.tableView.selectedRow
+        
+        if selectedRow != -1 {
+            let item: SubTitleData! = self.subTitleItmes?[selectedRow]
+            item.text = sender.stringValue
+            self.tableView.reloadData()
+        }
     }
     
     @IBAction func saveDocument(sender: AnyObject) {
@@ -297,7 +315,7 @@ extension ViewController {
     }
     
     @IBAction func removeLine(sender: AnyObject) {
-        print("removeLine")
+        //print("removeLine")
         let rows = self.tableView.selectedRowIndexes
         self.removeItems(rows)
     }
