@@ -58,7 +58,10 @@ class SubTitleDoc4Smi: SubTitleDoc {
             //print(millisec)
             //print(text)
             if text.isEmpty || text.lowercaseString == "&nbsp;" || text.lowercaseString == "&nbsp" {
-                let lastData: SubTitleData! = data.popLast()
+                guard let lastData: SubTitleData = data.popLast() else {
+                    continue
+                }
+                
                 let eTime = SubTitleTime(milliseconds: millisec)
                 
                 lastData.end = eTime.getReadableTime()

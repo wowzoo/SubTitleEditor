@@ -13,8 +13,11 @@ class ViewController: NSViewController {
     @IBOutlet var output: NSTextView!
     @IBOutlet weak var tableView: NSTableView!
     
-    var subTitleItmes: [SubTitleData]?
     var subTitleDoc: SubTitleDoc?
+    
+    var subTitleItemsForSearch: [SubTitleData]?
+    var subTitleItemsToShow: [SubTitleData]?
+    var subTitleItemsRaw: [SubTitleData]?
     
     let subTitle: String = "subTitle"
     
@@ -32,15 +35,21 @@ class ViewController: NSViewController {
                 
                 output.logging(url.path!)
                 
+                undoManager?.removeAllActions()
+                
                 subTitleDoc = SubTitleDocFactory.Create(url)
                 reloadSubTitleData()
             }
         }
     }
     
+    func isTableInSearchMode() -> Bool {
+        return self.subTitleItemsRaw != nil
+    }
+    
     func reloadSubTitleData() {
         do {
-            subTitleItmes = try subTitleDoc?.parse()
+            subTitleItemsToShow = try subTitleDoc?.parse()
             tableView.reloadData()
         } catch SubTitleError.ParseError(let message) {
             output.logging(message, color: NSColor.redColor())
@@ -53,14 +62,34 @@ class ViewController: NSViewController {
         }
     }
     
-    func addItems(items: AnyObject) {
-        print("addItems")
+    func addItems(rows: NSIndexSet, items: AnyObject) {
+        //print("addItems")
         
-        let rows: NSMutableIndexSet = NSMutableIndexSet()
-        for item: SubTitleData in items as! [SubTitleData] {
-            print("\(item.num) : \(item.text)")
-            subTitleItmes?.insert(item, atIndex: item.num)
-            rows.addIndex(item.num)
+        let data = items as! [SubTitleData]
+        var i: Int = 0
+        var firstIndex: Int = -1
+        rows.enumerateIndexesUsingBlock {
+            (index: Int, stop) -> Void in
+            
+            let item = data[i++]
+            //print("\(item.num) : \(item.text)")
+
+            self.subTitleItemsToShow?.insert(item, atIndex: index)
+            
+            if self.isTableInSearchMode() {
+                self.subTitleItemsRaw?.insert(item, atIndex: item.num)
+                if firstIndex == -1 {
+                    firstIndex = item.num
+                }
+            }
+        }
+        
+        //To re-ordering data num when add
+        if self.isTableInSearchMode() {
+            var count = firstIndex
+            for item in self.subTitleItemsRaw![firstIndex+1..<self.subTitleItemsRaw!.count] {
+                item.num = ++count
+            }
         }
         
         self.tableView.reloadData()
@@ -70,30 +99,43 @@ class ViewController: NSViewController {
     }
     
     func removeItems(rows: NSIndexSet) {
-        print("removeItems")
+        //print("removeItems")
         
         var items: [SubTitleData] = [SubTitleData]()
         
-        //self.tableView.removeRowsAtIndexes(rows, withAnimation: .SlideUp)
-        
+        var firstIndex: Int = -1
         rows.enumerateIndexesWithOptions(.Reverse) {
             (index: Int, _) -> Void in
             
-            let datum: SubTitleData! = self.subTitleItmes?.removeAtIndex(index)
-            print("\(datum.num) : \(datum.text)")
+            let datum: SubTitleData! = self.subTitleItemsToShow?.removeAtIndex(index)
+            //print("\(datum.num) : \(datum.text)")
             items.append(datum)
+            
+            if self.isTableInSearchMode() {
+                self.subTitleItemsRaw?.removeAtIndex(datum.num)
+                //print("\(datum.num) : \(datum.text)")
+                firstIndex = datum.num
+            }
+        }
+        
+        //To re-ordering data num when remove
+        if self.isTableInSearchMode() {
+            var count = firstIndex
+            for item in self.subTitleItemsRaw![firstIndex..<self.subTitleItemsRaw!.count] {
+                item.num = count++
+            }
         }
         
         self.tableView.reloadData()
         
-        undoManager?.prepareWithInvocationTarget(self).addItems(items.reverse())
+        undoManager?.prepareWithInvocationTarget(self).addItems(rows, items: items.reverse())
         undoManager?.setActionName(NSLocalizedString("actions.remove", comment: "Remove Items"))
     }
 }
 
 extension ViewController: NSTableViewDataSource {
     func numberOfRowsInTableView(tableView: NSTableView) -> Int {
-        return self.subTitleItmes?.count ?? 0
+        return self.subTitleItemsToShow?.count ?? 0
     }
     
     func tableView(tableView: NSTableView, writeRowsWithIndexes: NSIndexSet, toPasteboard: NSPasteboard) -> Bool {
@@ -114,8 +156,10 @@ extension ViewController: NSTableViewDataSource {
         let pb: NSPasteboard = info.draggingPasteboard()
         
         if let _ = pb.dataForType(subTitle) {
-            tableView.setDropRow(row, dropOperation: NSTableViewDropOperation.Above)
-            return .Move
+            if !self.isTableInSearchMode() {
+                tableView.setDropRow(row, dropOperation: NSTableViewDropOperation.Above)
+                return .Move
+            }
         } else {
             guard let url = NSURL(fromPasteboard: pb) else {
                 return .None
@@ -155,7 +199,7 @@ extension ViewController: NSTableViewDataSource {
             let currentRow  = indexSet.firstIndex
             print("move \(currentRow) --> \(row)")
             
-            let item = self.subTitleItmes![currentRow]
+            let item = self.subTitleItemsToShow![currentRow]
             print(item.text)
             
             if currentRow < row {
@@ -168,11 +212,11 @@ extension ViewController: NSTableViewDataSource {
                 */
                 
                 //insert moving item
-                subTitleItmes!.insert(item, atIndex: row)
+                subTitleItemsToShow!.insert(item, atIndex: row)
                 //tableView.insertRowsAtIndexes(NSIndexSet(index: row), withAnimation: .SlideLeft)
                 
                 //remove previous item
-                subTitleItmes!.removeAtIndex(currentRow)
+                subTitleItemsToShow!.removeAtIndex(currentRow)
                 //tableView.removeRowsAtIndexes(NSIndexSet(index: currentRow), withAnimation: .EffectFade)
                 
                 tableView.reloadData()
@@ -189,11 +233,11 @@ extension ViewController: NSTableViewDataSource {
                 */
                 
                 //remove item
-                subTitleItmes!.removeAtIndex(currentRow)
+                subTitleItemsToShow!.removeAtIndex(currentRow)
                 //tableView.removeRowsAtIndexes(NSIndexSet(index: currentRow), withAnimation: .EffectFade)
                 
                 //insert moving item
-                subTitleItmes!.insert(item, atIndex: row)
+                subTitleItemsToShow!.insert(item, atIndex: row)
                 //tableView.insertRowsAtIndexes(NSIndexSet(index: row), withAnimation: .SlideRight)
                 
                 tableView.reloadData()
@@ -216,14 +260,19 @@ extension ViewController: NSTableViewDelegate {
         var text: String = ""
         var cellIdentifier: String = ""
         
-        guard let item = self.subTitleItmes?[row] else {
+        guard let item = self.subTitleItemsToShow?[row] else {
             return nil
         }
         
         if tableColumn == tableView.tableColumns[0] {
-            //text = item.num
-            item.num = row
-            text = String(row+1)
+            if self.isTableInSearchMode() {
+                //the items in searching
+                text = String(item.num + 1)
+            } else {
+                //not the items in searching
+                item.num = row
+                text = String(row + 1)
+            }
             cellIdentifier = "eNumber"
         } else if tableColumn == tableView.tableColumns[1] {
             text = item.start
@@ -246,28 +295,79 @@ extension ViewController: NSTableViewDelegate {
         
         return nil
     }
+    
+    /*
+    func tableView(tableView: NSTableView, didRemoveRowView rowView: NSTableRowView, forRow row: Int) {
+        print("removed : \(row)")
+    }
+    
+    func tableView(tableView: NSTableView, didAddRowView rowView: NSTableRowView, forRow row: Int) {
+        print("added : \(row)")
+    }
+    */
 }
 
 extension ViewController {
     @IBAction func clearTable(sender: AnyObject) {
-        self.subTitleItmes?.removeAll()
+        self.subTitleItemsToShow?.removeAll()
         self.tableView.reloadData()
         
         undoManager?.removeAllActions()
     }
     
-    @IBAction func onEnterInTextField(sender: NSTextField) {
-        let selectedRow = self.tableView.selectedRow
+    @IBAction func onEnterInSearchField(sender: AnyObject) {
+        print("onEnterInSearchField")
         
+        print("number of rows : \(self.tableView.numberOfRows)")
+        //To prevent exception when no subtitle is loaded. (initial state)
+        if self.subTitleItemsToShow == nil {
+            return
+        }
+        
+        if let textField = sender as? NSTextField {
+            let searchText = textField.stringValue
+            print("textField : \(textField.stringValue)")
+            
+            if searchText.isEmpty {
+                if self.subTitleItemsRaw != nil {
+                    print("reload all")
+                    self.subTitleItemsToShow = self.subTitleItemsRaw
+                    self.subTitleItemsRaw = nil
+                    undoManager?.removeAllActions()
+                    self.tableView.reloadData()
+                }
+            } else {
+                if self.subTitleItemsRaw == nil {
+                    self.subTitleItemsRaw = self.subTitleItemsToShow
+                }
+                
+                self.subTitleItemsToShow?.removeAll(keepCapacity: false)
+                
+                for item in self.subTitleItemsRaw! {
+                    if item.text.containsString(searchText) {
+                        self.subTitleItemsToShow?.append(item)
+                    }
+                }
+                
+                self.tableView.reloadData()
+            }
+        }
+    }
+
+    @IBAction func onEnterInTextField(sender: NSTextField) {
+        print("onEnterInTextField")
+        
+        let selectedRow = self.tableView.selectedRow
         if selectedRow != -1 {
-            let item: SubTitleData! = self.subTitleItmes?[selectedRow]
+            let item: SubTitleData! = self.subTitleItemsToShow?[selectedRow]
+            print("\(item.num) : \(item.text)")
             item.text = sender.stringValue
             self.tableView.reloadData()
         }
     }
     
     @IBAction func saveDocument(sender: AnyObject) {
-        guard let subTitleItems = subTitleItmes where subTitleItems.count != 0 else {
+        guard let subTitleItems = subTitleItemsToShow where subTitleItems.count != 0 else {
             return
         }
         

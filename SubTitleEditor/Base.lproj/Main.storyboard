@@ -696,8 +696,26 @@
                                         <action selector="clearTable:" target="Oky-zY-oP4" id="Hh5-eF-6eb"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="1AB3AF0E-B500-47A9-97F7-C2F18931F138" label="Search" paletteLabel="Search" id="dk9-Yb-ek1">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="96" height="22"/>
+                                    <size key="maxSize" width="96" height="22"/>
+                                    <searchField key="view" wantsLayer="YES" verticalHuggingPriority="750" id="e92-Bs-scQ">
+                                        <rect key="frame" x="0.0" y="14" width="96" height="22"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" sendsWholeSearchString="YES" id="WOt-DU-5W0">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </searchFieldCell>
+                                    </searchField>
+                                    <connections>
+                                        <action selector="onEnterInSearchField:" target="Oky-zY-oP4" id="3xG-sr-C2o"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
+                                <toolbarItem reference="dk9-Yb-ek1"/>
                                 <toolbarItem reference="5Lh-Dh-BAM"/>
                                 <toolbarItem reference="tc8-XX-8hs"/>
                                 <toolbarItem reference="djh-2D-4Pz"/>
