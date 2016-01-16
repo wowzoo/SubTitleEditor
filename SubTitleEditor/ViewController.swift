@@ -152,6 +152,10 @@ extension ViewController: NSTableViewDataSource {
     {
         //print("validateDrop")
         
+        if dropOperation == .On {
+            return .None
+        }
+        
         //get the file URLs from the pasteboard
         let pb: NSPasteboard = info.draggingPasteboard()
         
@@ -422,9 +426,9 @@ extension ViewController {
 }
 
 extension NSTextView {
-    func logging(line: String, color: NSColor = NSColor.whiteColor()) {
+    func logging(line: String, color: NSColor = NSColor.blackColor()) {
         //set font and color
-        let attriDict = [NSFontAttributeName: NSFont.boldSystemFontOfSize(12.0),
+        let attriDict = [NSFontAttributeName: NSFont.systemFontOfSize(12.0),
             NSForegroundColorAttributeName: color]
         
         let attrString = NSAttributedString(string: "\(line)\n", attributes: attriDict)
