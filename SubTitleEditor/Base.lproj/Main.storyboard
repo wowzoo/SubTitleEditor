@@ -657,46 +657,14 @@
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <value key="minSize" type="size" width="480" height="270"/>
-                        <toolbar key="toolbar" implicitIdentifier="7333B694-9E09-4E76-9794-70DEFE5CE266" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="VYF-0t-YtN">
+                        <toolbar key="toolbar" implicitIdentifier="7333B694-9E09-4E76-9794-70DEFE5CE266" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="VYF-0t-YtN">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="EGc-aR-kpm"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="Cam-HP-Kdn"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="tYs-qX-ZON"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="4tw-pi-8eD"/>
                                 <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="5Lh-Dh-BAM"/>
-                                <toolbarItem implicitItemIdentifier="60068800-665B-4821-B745-83AE42B9FA0C" label="Save" paletteLabel="Save" image="computers.floppy_disk 32" id="tc8-XX-8hs">
-                                    <nil key="toolTip"/>
-                                    <size key="minSize" width="32" height="32"/>
-                                    <size key="maxSize" width="48" height="48"/>
-                                    <button key="view" id="2qh-1V-bi0">
-                                        <rect key="frame" x="1" y="14" width="32" height="32"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="computers.floppy_disk 32" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="UKr-GF-3hh">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                    </button>
-                                    <connections>
-                                        <action selector="saveDocument:" target="Oky-zY-oP4" id="ryz-30-E0U"/>
-                                    </connections>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="35339B42-C25A-4E14-9D29-EC50153B9058" label="Clear" paletteLabel="Clear" image="edit.trash_rect_full 32" id="djh-2D-4Pz">
-                                    <nil key="toolTip"/>
-                                    <size key="minSize" width="32" height="32"/>
-                                    <size key="maxSize" width="48" height="48"/>
-                                    <button key="view" id="oA2-Vo-RrQ">
-                                        <rect key="frame" x="2" y="14" width="32" height="32"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="edit.trash_rect_full 32" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="JSi-WF-id4">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                    </button>
-                                    <connections>
-                                        <action selector="clearTable:" target="Oky-zY-oP4" id="Hh5-eF-6eb"/>
-                                    </connections>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="1AB3AF0E-B500-47A9-97F7-C2F18931F138" label="Search" paletteLabel="Search" id="dk9-Yb-ek1">
+                                <toolbarItem implicitItemIdentifier="1AB3AF0E-B500-47A9-97F7-C2F18931F138" label="" paletteLabel="Search" id="dk9-Yb-ek1">
                                     <nil key="toolTip"/>
                                     <size key="minSize" width="96" height="22"/>
                                     <size key="maxSize" width="96" height="22"/>
@@ -713,12 +681,44 @@
                                         <action selector="onEnterInSearchField:" target="Oky-zY-oP4" id="3xG-sr-C2o"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="E2AEE732-33A8-48F4-8578-3B2DB05197E3" label="" paletteLabel="Clear" image="ClearIcon" id="IGa-QZ-lrE">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="48" height="25"/>
+                                    <size key="maxSize" width="48" height="32"/>
+                                    <button key="view" verticalHuggingPriority="750" id="fYh-TN-ejX">
+                                        <rect key="frame" x="0.0" y="14" width="48" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="ClearIcon" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="tYr-XV-QvH">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <connections>
+                                        <action selector="clearTable:" target="Oky-zY-oP4" id="rV7-6s-K7q"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="2F59E16F-392A-4D25-B2DC-B58C0CE49031" label="" paletteLabel="Save" image="SaveIcon" id="cHi-FL-aOc">
+                                    <nil key="toolTip"/>
+                                    <size key="minSize" width="48" height="25"/>
+                                    <size key="maxSize" width="48" height="32"/>
+                                    <button key="view" verticalHuggingPriority="750" id="aNE-gl-qdJ">
+                                        <rect key="frame" x="0.0" y="14" width="48" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="SaveIcon" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="g8p-7u-reT">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <connections>
+                                        <action selector="saveDocument:" target="Oky-zY-oP4" id="ycO-9j-Ey5"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="dk9-Yb-ek1"/>
                                 <toolbarItem reference="5Lh-Dh-BAM"/>
-                                <toolbarItem reference="tc8-XX-8hs"/>
-                                <toolbarItem reference="djh-2D-4Pz"/>
+                                <toolbarItem reference="cHi-FL-aOc"/>
+                                <toolbarItem reference="IGa-QZ-lrE"/>
                             </defaultToolbarItems>
                         </toolbar>
                     </window>
@@ -1029,7 +1029,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="computers.floppy_disk 32" width="32" height="32"/>
-        <image name="edit.trash_rect_full 32" width="32" height="32"/>
+        <image name="ClearIcon" width="16" height="16"/>
+        <image name="SaveIcon" width="16" height="16"/>
     </resources>
 </document>
