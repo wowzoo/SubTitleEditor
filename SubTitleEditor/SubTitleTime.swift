@@ -76,6 +76,10 @@ func - (left: SubTitleTime, right: SubTitleTime) -> Int {
     return left.milliseconds - right.milliseconds
 }
 
+func - (left: SubTitleTime, right: Int) -> SubTitleTime {
+    return SubTitleTime(milliseconds: left.milliseconds-right)
+}
+
 func + (left: SubTitleTime, right: Int) -> SubTitleTime {
     return SubTitleTime(milliseconds: left.milliseconds+right)
 }

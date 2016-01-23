@@ -8,24 +8,46 @@
 
 import Cocoa
 
+class OnlyAllowNumberFormatter : NSNumberFormatter {
+    override func isPartialStringValid(partialString: String, newEditingString newString: AutoreleasingUnsafeMutablePointer<NSString?>, errorDescription error: AutoreleasingUnsafeMutablePointer<NSString?>) -> Bool {
+        
+        if let _ = partialString.rangeOfCharacterFromSet(NSCharacterSet.decimalDigitCharacterSet().invertedSet) {
+            return false
+        }
+        
+        return true
+        
+    }
+}
+
 class ViewController: NSViewController {
 
+    @IBOutlet weak var intervalDisplay: NSButton!
+    @IBOutlet weak var intervalInput: NSTextField!
     @IBOutlet var output: NSTextView!
     @IBOutlet weak var tableView: NSTableView!
     
     var subTitleDoc: SubTitleDoc?
     
-    var subTitleItemsForSearch: [SubTitleData]?
+    //var subTitleItemsForSearch: [SubTitleData]?
     var subTitleItemsToShow: [SubTitleData]?
     var subTitleItemsRaw: [SubTitleData]?
     
     let subTitle: String = "subTitle"
+    
+    var applyAllRows: Bool = true
+    var intervalTimeAmount: Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
         tableView.registerForDraggedTypes([subTitle, NSURLPboardType])
+        
+        self.intervalDisplay.title = "00:00:00,000"
+        
+        let formatter: OnlyAllowNumberFormatter = OnlyAllowNumberFormatter()
+        self.intervalInput.formatter = formatter
     }
 
     override var representedObject: AnyObject? {
@@ -299,16 +321,6 @@ extension ViewController: NSTableViewDelegate {
         
         return nil
     }
-    
-    /*
-    func tableView(tableView: NSTableView, didRemoveRowView rowView: NSTableRowView, forRow row: Int) {
-        print("removed : \(row)")
-    }
-    
-    func tableView(tableView: NSTableView, didAddRowView rowView: NSTableRowView, forRow row: Int) {
-        print("added : \(row)")
-    }
-    */
 }
 
 extension ViewController {
@@ -422,6 +434,84 @@ extension ViewController {
         //print("removeLine")
         let rows = self.tableView.selectedRowIndexes
         self.removeItems(rows)
+    }
+    
+    enum ChangeType {
+        case Pull
+        case Push
+    }
+    
+    func changeIntervalInRange(items: [SubTitleData], type: ChangeType) {
+        for item in items {
+            let sTime = SubTitleTime(timeInStr: item.start)
+            let eTime = SubTitleTime(timeInStr: item.end)
+            
+            let timeChange: (start: SubTitleTime, end: SubTitleTime) = (type == .Pull) ? (sTime - self.intervalTimeAmount, eTime - self.intervalTimeAmount) : (sTime + self.intervalTimeAmount, eTime + self.intervalTimeAmount)
+            
+            item.start = timeChange.start.getReadableTime()
+            item.end = timeChange.end.getReadableTime()
+        }
+    }
+    
+    @IBAction func pullTiming(sender: AnyObject) {
+        //print("pullTiming")
+        if self.applyAllRows {
+            changeIntervalInRange(self.subTitleItemsToShow!, type: .Pull)
+            
+            self.tableView.reloadData()
+        } else {
+            let selectedRow = self.tableView.selectedRow
+            if selectedRow != -1 {
+                let lastRow = self.subTitleItemsToShow!.count - 1
+                let items = Array(self.subTitleItemsToShow![selectedRow...lastRow])
+                changeIntervalInRange(items, type: .Pull)
+                
+                self.tableView.reloadData()
+                self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+            }
+        }
+    }
+    
+    @IBAction func pushTiming(sender: AnyObject) {
+        //print("pushTiming")
+        if self.applyAllRows {
+            changeIntervalInRange(self.subTitleItemsToShow!, type: .Push)
+            
+            self.tableView.reloadData()
+        } else {
+            let selectedRow = self.tableView.selectedRow
+            if selectedRow != -1 {
+                let lastRow = self.subTitleItemsToShow!.count - 1
+                let items = Array(self.subTitleItemsToShow![selectedRow...lastRow])
+                changeIntervalInRange(items, type: .Push)
+                
+                self.tableView.reloadData()
+                self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+            }
+        }
+    }
+    
+    @IBAction func onConvertReadableTime(sender: AnyObject) {
+        if let milliseconds = Int(self.intervalInput.stringValue) {
+            self.intervalTimeAmount = milliseconds
+            
+            let subTitleTime = SubTitleTime(milliseconds: milliseconds)
+            self.intervalDisplay.title = subTitleTime.getReadableTime()
+            
+            self.intervalInput.stringValue = ""
+        }
+    }
+    
+    @IBAction func checkApplyRange(sender: NSButton) {
+        print("checkApplyRange")
+        
+        if sender.identifier == "fromFirstRow" {
+            print("From the first row")
+            self.applyAllRows = true
+        } else if sender.identifier == "fromSelectedRow" {
+            print("From the selected row")
+            self.applyAllRows = false
+        }
     }
 }
 
