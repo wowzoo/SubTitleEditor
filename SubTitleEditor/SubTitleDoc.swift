@@ -17,6 +17,10 @@ enum SubTitleError: ErrorType {
 
 protocol SubTitleDoc {
     var url: NSURL! { get set }
+    var enc: UInt { get set }
+    
+    var encoding: String { get }
+    var filepath: String { get }
     
     func parse() throws -> [SubTitleData]
 }

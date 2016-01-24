@@ -8,11 +8,25 @@
 
 import Cocoa
 
-class SubTitleDoc4Smi: SubTitleDoc {
+class SubTitleDoc4Smi: SubTitleDoc {    
+    var encoding: String {
+        get {
+            return String.localizedNameOfStringEncoding(self.enc)
+        }
+    }
+    
+    var filepath: String {
+        get {
+            return self.url.path!
+        }
+    }
+    
     var url: NSURL!
+    var enc: UInt
     
     init(fileURL: NSURL) {
         self.url = fileURL
+        self.enc = NSUTF8StringEncoding
     }
     
     func parse() throws -> [SubTitleData] {
@@ -26,7 +40,7 @@ class SubTitleDoc4Smi: SubTitleDoc {
             throw SubTitleError.ParseError(message: "This is not SMI format file")
         }
         
-        let regex = "^<\\s*SYNC\\s+Start\\s*=\\s*([0-9]+)\\s*><\\s*P\\s+Class\\s*=\\s*[a-z]+\\s*>(<br>)*(.*)"
+        let regex = "^<\\s*SYNC\\s+Start\\s*=\\s*([0-9]+)\\s*><\\s*P\\s+Class\\s*=\\s*[a-z_]+\\s*>(<br>)*(.*)"
         var data = [SubTitleData]()
         
         var itemNum: Int = 0
@@ -128,9 +142,9 @@ class SubTitleDoc4Smi: SubTitleDoc {
         fileHandle.closeFile()
         
         var convertedString: NSString?
-        let enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
+        self.enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
         
-        print(NSString.localizedNameOfStringEncoding(enc) + " is used")
+        print(String.localizedNameOfStringEncoding(enc) + " is used")
         
         guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
             throw SubTitleError.ParseError(message: "Separating Newline Error")
@@ -159,8 +173,10 @@ class SubTitleDoc4Smi: SubTitleDoc {
                     collectedString += line.substringToIndex(range.startIndex)
                 }
                 
-                subList.append(collectedString)
-                collectedString = ""
+                if !collectedString.isEmpty {
+                    subList.append(collectedString)
+                    collectedString = ""
+                }
             } else {
                 if !collectedString.isEmpty {
                     collectedString += line

@@ -9,14 +9,28 @@
 import Cocoa
 
 class SubTitleDoc4Srt: SubTitleDoc {
+    var encoding: String {
+        get {
+            return NSString.localizedNameOfStringEncoding(self.enc)
+        }
+    }
+    
+    var filepath: String {
+        get {
+            return self.url.path!
+        }
+    }
+    
     var url: NSURL!
+    var enc: UInt
     
     init(fileURL: NSURL) {
         self.url = fileURL
+        self.enc = NSUTF8StringEncoding
     }
     
     func parse() throws -> [SubTitleData] {
-        guard let path = url.path else {
+        guard let path = url!.path else {
             throw SubTitleError.InvalidURLPath
         }
         
@@ -104,7 +118,7 @@ class SubTitleDoc4Srt: SubTitleDoc {
         fileHandle.closeFile()
         
         var convertedString: NSString?
-        let enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
+        self.enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
         
         print(NSString.localizedNameOfStringEncoding(enc) + " is used")
         

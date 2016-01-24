@@ -12,6 +12,7 @@ class OnlyAllowNumberFormatter : NSNumberFormatter {
     override func isPartialStringValid(partialString: String, newEditingString newString: AutoreleasingUnsafeMutablePointer<NSString?>, errorDescription error: AutoreleasingUnsafeMutablePointer<NSString?>) -> Bool {
         
         if let _ = partialString.rangeOfCharacterFromSet(NSCharacterSet.decimalDigitCharacterSet().invertedSet) {
+            print("inverted decimalDigitCharacterSet")
             return false
         }
         
@@ -22,14 +23,15 @@ class OnlyAllowNumberFormatter : NSNumberFormatter {
 
 class ViewController: NSViewController {
 
+    @IBOutlet weak var extLabel: NSTextField!
+    @IBOutlet weak var outputLabel: NSTextField!
+    
     @IBOutlet weak var intervalDisplay: NSButton!
     @IBOutlet weak var intervalInput: NSTextField!
-    @IBOutlet var output: NSTextView!
     @IBOutlet weak var tableView: NSTableView!
     
     var subTitleDoc: SubTitleDoc?
     
-    //var subTitleItemsForSearch: [SubTitleData]?
     var subTitleItemsToShow: [SubTitleData]?
     var subTitleItemsRaw: [SubTitleData]?
     
@@ -55,10 +57,6 @@ class ViewController: NSViewController {
             if let url = representedObject as? NSURL {
                 print("opening file : \(url.path!)")
                 
-                output.logging(url.path!)
-                
-                undoManager?.removeAllActions()
-                
                 subTitleDoc = SubTitleDocFactory.Create(url)
                 reloadSubTitleData()
             }
@@ -69,18 +67,35 @@ class ViewController: NSViewController {
         return self.subTitleItemsRaw != nil
     }
     
+    func resetAll() {
+        self.subTitleItemsToShow?.removeAll()
+        self.tableView.reloadData()
+        
+        undoManager?.removeAllActions()
+        
+        self.intervalInput.stringValue = ""
+        self.intervalDisplay.title = "00:00:00,000"
+        self.intervalTimeAmount = 0
+    }
+    
     func reloadSubTitleData() {
+        self.resetAll()
+        
+        self.view.window?.title = subTitleDoc!.url.URLByDeletingPathExtension!.lastPathComponent!
+        self.extLabel.stringValue = subTitleDoc!.url.pathExtension!
+        
         do {
             subTitleItemsToShow = try subTitleDoc?.parse()
+            self.outputLabel.stringValue = "Encoding : \(subTitleDoc!.encoding)"
             tableView.reloadData()
         } catch SubTitleError.ParseError(let message) {
-            output.logging(message, color: NSColor.redColor())
+            self.outputLabel.stringValue = "Syntax Error : \(message)"
         } catch SubTitleError.InvalidURLPath {
-            output.logging("Invalid URL Path", color: NSColor.redColor())
+            self.outputLabel.stringValue = "Error : Invalid URL Path"
         } catch SubTitleError.StreamOpenError {
-            output.logging("Stream Open Error", color: NSColor.redColor())
+            self.outputLabel.stringValue = "Error : Stream Open Failed"
         } catch {
-            output.logging("something goes wrong", color: NSColor.redColor())
+            self.outputLabel.stringValue = "Error : Unknown, Something goes wrong"
         }
     }
     
@@ -325,10 +340,11 @@ extension ViewController: NSTableViewDelegate {
 
 extension ViewController {
     @IBAction func clearTable(sender: AnyObject) {
-        self.subTitleItemsToShow?.removeAll()
-        self.tableView.reloadData()
+        self.resetAll()
         
-        undoManager?.removeAllActions()
+        self.view.window?.title = "SubTitleEditor"
+        self.extLabel.stringValue = ""
+        self.outputLabel.stringValue = ""
     }
     
     @IBAction func onEnterInSearchField(sender: AnyObject) {
@@ -390,7 +406,7 @@ extension ViewController {
         let url = self.subTitleDoc!.url
         let filePath = url.URLByDeletingPathExtension!.path! + ".srt"
         
-        output.logging("save file path : \(filePath)\n")
+        self.outputLabel.stringValue = "Saved : \(filePath)\n"
         print("save file path : \(filePath)")
         
         //create empty file
@@ -511,22 +527,6 @@ extension ViewController {
         } else if sender.identifier == "fromSelectedRow" {
             print("From the selected row")
             self.applyAllRows = false
-        }
-    }
-}
-
-extension NSTextView {
-    func logging(line: String, color: NSColor = NSColor.blackColor()) {
-        //set font and color
-        let attriDict = [NSFontAttributeName: NSFont.systemFontOfSize(12.0),
-            NSForegroundColorAttributeName: color]
-        
-        let attrString = NSAttributedString(string: "\(line)\n", attributes: attriDict)
-        self.textStorage?.appendAttributedString(attrString)
-        
-        //locate cursor at the front of next line so autoscroll
-        if let loc = self.string?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) {
-            self.scrollRangeToVisible(NSRange(location: loc, length: 0))
         }
     }
 }
