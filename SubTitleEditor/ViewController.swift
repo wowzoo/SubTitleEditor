@@ -40,6 +40,8 @@ class ViewController: NSViewController {
     var applyAllRows: Bool = true
     var intervalTimeAmount: Int = 0
     
+    var fileNameIncrement: Int = 1
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -76,6 +78,7 @@ class ViewController: NSViewController {
         self.intervalInput.stringValue = ""
         self.intervalDisplay.title = "00:00:00,000"
         self.intervalTimeAmount = 0
+        self.fileNameIncrement = 1
     }
     
     func reloadSubTitleData() {
@@ -87,7 +90,8 @@ class ViewController: NSViewController {
         do {
             subTitleItemsToShow = try subTitleDoc?.parse()
             self.outputLabel.stringValue = "Encoding : \(subTitleDoc!.encoding)"
-            tableView.reloadData()
+            self.tableView.reloadData()
+            self.tableView.scrollRowToVisible(0)
         } catch SubTitleError.ParseError(let message) {
             self.outputLabel.stringValue = "Syntax Error : \(message)"
         } catch SubTitleError.InvalidURLPath {
@@ -404,13 +408,22 @@ extension ViewController {
         }
         
         let url = self.subTitleDoc!.url
-        let filePath = url.URLByDeletingPathExtension!.path! + ".srt"
+        let filePathWithoutExt = url.URLByDeletingPathExtension!.path!
+        var filePath = filePathWithoutExt + ".srt"
+        
+        //get default file manager
+        let fileManager = NSFileManager.defaultManager()
+        
+        //check file exist
+        while fileManager.fileExistsAtPath(filePath) {
+            filePath = filePathWithoutExt + "_\(fileNameIncrement++).srt"
+        }
         
         self.outputLabel.stringValue = "Saved : \(filePath)\n"
         print("save file path : \(filePath)")
         
         //create empty file
-        let fileManager = NSFileManager.defaultManager().createFileAtPath(filePath, contents: nil, attributes: nil)
+        let _ = fileManager.createFileAtPath(filePath, contents: nil, attributes: nil)
         
         //wirte data to file with utf-8
         if let fileHandle = NSFileHandle(forWritingAtPath: filePath) {
