@@ -15,29 +15,78 @@ enum SubTitleError: ErrorType {
     case UnknownError(error: NSError)
 }
 
-protocol SubTitleDoc {
-    var url: NSURL! { get set }
-    var enc: UInt { get set }
+class SubTitleDoc {
+    var encoding: String {
+        get {
+            return String.localizedNameOfStringEncoding(self.enc)
+        }
+    }
     
-    var encoding: String { get }
-    var filepath: String { get }
+    var filePathWithoutExt: String {
+        get {
+            return url.URLByDeletingPathExtension!.path!
+        }
+    }
     
-    func parse() throws -> [SubTitleData]
+    var fileName: String {
+        get {
+            return url.URLByDeletingPathExtension!.lastPathComponent!
+        }
+    }
+    
+    var fileExtension: String {
+        get {
+            return url.pathExtension!
+        }
+    }
+    
+    var url: NSURL!
+    var enc: UInt
+    
+    init(fileURL: NSURL) {
+        self.url = fileURL
+        self.enc = NSUTF8StringEncoding
+    }
+    
+    func getLines() throws -> [String] {
+        guard let path = url.path else {
+            throw SubTitleError.InvalidURLPath
+        }
+        
+        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
+        let tmpData = fileHandle.readDataToEndOfFile()
+        fileHandle.closeFile()
+        
+        var convertedString: NSString?
+        self.enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
+        
+        //print(String.localizedNameOfStringEncoding(enc) + " is used")
+        
+        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
+            throw SubTitleError.ParseError(message: "Separating Newline Error")
+        }
+        
+        return lines
+    }
+    
+    func parse() throws -> [SubTitleData] {
+        fatalError("must be overridden")
+    }
 }
 
 
 extension String {
     func getMatches(regex: String, options: NSRegularExpressionOptions) -> [NSTextCheckingResult]
     {
-        var matches = [NSTextCheckingResult]()
+        var matches: [NSTextCheckingResult]?
         
         do {
             let exp = try NSRegularExpression(pattern: regex, options: options)
             matches = exp.matchesInString(self, options: [], range: NSMakeRange(0, self.characters.count))
         } catch let error as NSError {
-            print(error)
+            fatalError(error.debugDescription)
         }
         
-        return matches
+        return matches!
     }
 }

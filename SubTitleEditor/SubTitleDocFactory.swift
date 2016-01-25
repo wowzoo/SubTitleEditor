@@ -9,9 +9,8 @@
 import Foundation
 
 class SubTitleDocFactory {
-    static func Create(fileURL: NSURL) -> SubTitleDoc? {
+    class func Create(fileURL: NSURL) -> SubTitleDoc? {
         if let ext = fileURL.pathExtension {
-            //print(ext)
             if ext == "srt" {
                 return SubTitleDoc4Srt(fileURL: fileURL)
             } else if ext == "smi" {

@@ -12,7 +12,6 @@ class OnlyAllowNumberFormatter : NSNumberFormatter {
     override func isPartialStringValid(partialString: String, newEditingString newString: AutoreleasingUnsafeMutablePointer<NSString?>, errorDescription error: AutoreleasingUnsafeMutablePointer<NSString?>) -> Bool {
         
         if let _ = partialString.rangeOfCharacterFromSet(NSCharacterSet.decimalDigitCharacterSet().invertedSet) {
-            print("inverted decimalDigitCharacterSet")
             return false
         }
         
@@ -57,7 +56,7 @@ class ViewController: NSViewController {
     override var representedObject: AnyObject? {
         didSet {
             if let url = representedObject as? NSURL {
-                print("opening file : \(url.path!)")
+                //print("opening file : \(url.path!)")
                 
                 subTitleDoc = SubTitleDocFactory.Create(url)
                 reloadSubTitleData()
@@ -84,8 +83,8 @@ class ViewController: NSViewController {
     func reloadSubTitleData() {
         self.resetAll()
         
-        self.view.window?.title = subTitleDoc!.url.URLByDeletingPathExtension!.lastPathComponent!
-        self.extLabel.stringValue = subTitleDoc!.url.pathExtension!
+        self.view.window?.title = subTitleDoc!.fileName
+        self.extLabel.stringValue = subTitleDoc!.fileExtension
         
         do {
             subTitleItemsToShow = try subTitleDoc?.parse()
@@ -242,14 +241,14 @@ extension ViewController: NSTableViewDataSource {
             let dataArray: [NSIndexSet]  = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [NSIndexSet]
             let indexSet = dataArray[0]
             let currentRow  = indexSet.firstIndex
-            print("move \(currentRow) --> \(row)")
+            //print("move \(currentRow) --> \(row)")
             
             let item = self.subTitleItemsToShow![currentRow]
-            print(item.text)
+            //print(item.text)
             
             if currentRow < row {
                 //move down
-                print("move down")
+                //print("move down")
                 
                 /* in case of moving down
                  * 1. insert first
@@ -270,7 +269,7 @@ extension ViewController: NSTableViewDataSource {
                 
             } else if currentRow > row {
                 //move up
-                print("move up")
+                //print("move up")
                 
                 /* in case of moving up
                  * 1. remove first
@@ -352,9 +351,9 @@ extension ViewController {
     }
     
     @IBAction func onEnterInSearchField(sender: AnyObject) {
-        print("onEnterInSearchField")
+        //print("onEnterInSearchField")
         
-        print("number of rows : \(self.tableView.numberOfRows)")
+        //print("number of rows : \(self.tableView.numberOfRows)")
         //To prevent exception when no subtitle is loaded. (initial state)
         if self.subTitleItemsToShow == nil {
             return
@@ -362,11 +361,11 @@ extension ViewController {
         
         if let textField = sender as? NSTextField {
             let searchText = textField.stringValue
-            print("textField : \(textField.stringValue)")
+            //print("textField : \(textField.stringValue)")
             
             if searchText.isEmpty {
                 if self.subTitleItemsRaw != nil {
-                    print("reload all")
+                    //print("reload all")
                     self.subTitleItemsToShow = self.subTitleItemsRaw
                     self.subTitleItemsRaw = nil
                     undoManager?.removeAllActions()
@@ -391,12 +390,12 @@ extension ViewController {
     }
 
     @IBAction func onEnterInTextField(sender: NSTextField) {
-        print("onEnterInTextField")
+        //print("onEnterInTextField")
         
         let selectedRow = self.tableView.selectedRow
         if selectedRow != -1 {
             let item: SubTitleData! = self.subTitleItemsToShow?[selectedRow]
-            print("\(item.num) : \(item.text)")
+            //print("\(item.num) : \(item.text)")
             item.text = sender.stringValue
             self.tableView.reloadData()
         }
@@ -407,8 +406,7 @@ extension ViewController {
             return
         }
         
-        let url = self.subTitleDoc!.url
-        let filePathWithoutExt = url.URLByDeletingPathExtension!.path!
+        let filePathWithoutExt = self.subTitleDoc!.filePathWithoutExt
         var filePath = filePathWithoutExt + ".srt"
         
         //get default file manager
@@ -420,7 +418,7 @@ extension ViewController {
         }
         
         self.outputLabel.stringValue = "Saved : \(filePath)\n"
-        print("save file path : \(filePath)")
+        //print("save file path : \(filePath)")
         
         //create empty file
         let _ = fileManager.createFileAtPath(filePath, contents: nil, attributes: nil)
@@ -428,7 +426,7 @@ extension ViewController {
         //wirte data to file with utf-8
         if let fileHandle = NSFileHandle(forWritingAtPath: filePath) {
             defer {
-                print("call closeFile")
+                //print("call closeFile")
                 fileHandle.closeFile()
             }
             
@@ -532,13 +530,13 @@ extension ViewController {
     }
     
     @IBAction func checkApplyRange(sender: NSButton) {
-        print("checkApplyRange")
+        //print("checkApplyRange")
         
         if sender.identifier == "fromFirstRow" {
-            print("From the first row")
+            //print("From the first row")
             self.applyAllRows = true
         } else if sender.identifier == "fromSelectedRow" {
-            print("From the selected row")
+            //print("From the selected row")
             self.applyAllRows = false
         }
     }

@@ -9,7 +9,7 @@
 import Foundation
 
 class SubTitleTime {
-    var milliseconds: Int = 0
+    var milliseconds: Int
     
     init(milliseconds: Int) {
         self.milliseconds = milliseconds
@@ -18,9 +18,7 @@ class SubTitleTime {
     // HH:mm:ss,SSS format
     init(timeInStr: String) {
         let delimiter = NSCharacterSet(charactersInString: ":,")
-        let timeComponents = (timeInStr as NSString).componentsSeparatedByCharactersInSet(delimiter)
-        
-        timeComponents
+        let timeComponents = timeInStr.componentsSeparatedByCharactersInSet(delimiter)
         
         let hours: Int! = Int(timeComponents[0])
         let minutes: Int! = Int(timeComponents[1])

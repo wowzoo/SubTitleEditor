@@ -9,32 +9,9 @@
 import Cocoa
 
 class SubTitleDoc4Srt: SubTitleDoc {
-    var encoding: String {
-        get {
-            return NSString.localizedNameOfStringEncoding(self.enc)
-        }
-    }
     
-    var filepath: String {
-        get {
-            return self.url.path!
-        }
-    }
-    
-    var url: NSURL!
-    var enc: UInt
-    
-    init(fileURL: NSURL) {
-        self.url = fileURL
-        self.enc = NSUTF8StringEncoding
-    }
-    
-    func parse() throws -> [SubTitleData] {
-        guard let path = url!.path else {
-            throw SubTitleError.InvalidURLPath
-        }
-        
-        let subList: [String] = try getManagedLines(path)
+    override func parse() throws -> [SubTitleData] {
+        let subList: [String] = try getManagedLines()
         
         //var sequentialNumber: Int = 1
         var startTime: String = ""
@@ -110,21 +87,10 @@ class SubTitleDoc4Srt: SubTitleDoc {
         return data
     }
     
-    func getManagedLines(path: String) throws -> [String] {
+    func getManagedLines() throws -> [String] {
         var subList: [String] = [String]()
         
-        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
-        let tmpData = fileHandle.readDataToEndOfFile()
-        fileHandle.closeFile()
-        
-        var convertedString: NSString?
-        self.enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
-        
-        print(NSString.localizedNameOfStringEncoding(enc) + " is used")
-        
-        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
-            throw SubTitleError.ParseError(message: "Separating Newline Error")
-        }
+        let lines = try super.getLines()
         
         /* SRT File Format
         * It consists of four parts, all in text..

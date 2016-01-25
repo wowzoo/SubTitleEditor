@@ -9,32 +9,9 @@
 import Cocoa
 
 class SubTitleDoc4Smi: SubTitleDoc {    
-    var encoding: String {
-        get {
-            return String.localizedNameOfStringEncoding(self.enc)
-        }
-    }
     
-    var filepath: String {
-        get {
-            return self.url.path!
-        }
-    }
-    
-    var url: NSURL!
-    var enc: UInt
-    
-    init(fileURL: NSURL) {
-        self.url = fileURL
-        self.enc = NSUTF8StringEncoding
-    }
-    
-    func parse() throws -> [SubTitleData] {
-        guard let path = url.path else {
-            throw SubTitleError.InvalidURLPath
-        }
-        
-        let subList: [String] = try getManagedLines(path)
+    override func parse() throws -> [SubTitleData] {
+        let subList: [String] = try getManagedLines()
         
         guard subList.count != 0 else {
             throw SubTitleError.ParseError(message: "This is not SMI format file")
@@ -48,9 +25,8 @@ class SubTitleDoc4Smi: SubTitleDoc {
             //print(subLine)
             let matches = subLine.getMatches(regex, options: .CaseInsensitive)
             if matches.count == 0 {
-                print(subLine)
+                //print(subLine)
                 data.removeAll()
-                //return nil
                 
                 throw SubTitleError.ParseError(message: subLine)
             }
@@ -69,8 +45,6 @@ class SubTitleDoc4Smi: SubTitleDoc {
                 throw SubTitleError.ParseError(message: "RegularExpression Matching is Wrong")
             }
             
-            //print(millisec)
-            //print(text)
             if text.isEmpty || text.lowercaseString == "&nbsp;" || text.lowercaseString == "&nbsp" {
                 guard let lastData: SubTitleData = data.popLast() else {
                     continue
@@ -134,21 +108,10 @@ class SubTitleDoc4Smi: SubTitleDoc {
         return data
     }
     
-    func getManagedLines(path: String) throws -> [String] {
+    func getManagedLines() throws -> [String] {
         var subList: [String] = [String]()
         
-        let fileHandle: NSFileHandle! = NSFileHandle(forReadingAtPath: path)
-        let tmpData = fileHandle.readDataToEndOfFile()
-        fileHandle.closeFile()
-        
-        var convertedString: NSString?
-        self.enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
-        
-        print(String.localizedNameOfStringEncoding(enc) + " is used")
-        
-        guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
-            throw SubTitleError.ParseError(message: "Separating Newline Error")
-        }
+        let lines = try super.getLines()
         
         var collectedString: String = ""
         

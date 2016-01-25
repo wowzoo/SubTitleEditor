@@ -9,11 +9,11 @@
 import Cocoa
 
 class SubTitleData {
-    var num: Int = 0
-    var start: String = ""
-    var end: String = ""
-    var duration: String = ""
-    var text: String = ""
+    var num: Int
+    var start: String
+    var end: String
+    var duration: String
+    var text: String
     
     init(num: Int, start: String, end: String, text: String, duration: String) {
         self.num = num
