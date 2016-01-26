@@ -55,7 +55,7 @@ class SubTitleDoc4Srt: SubTitleDoc {
                 
                 let sTime = SubTitleTime(timeInStr: startTime)
                 let eTime = SubTitleTime(timeInStr: endTime)
-                duration = SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
                 
                 datum = SubTitleData(num: itemNum++, start: startTime, end: endTime, text: "", duration: duration)
                 

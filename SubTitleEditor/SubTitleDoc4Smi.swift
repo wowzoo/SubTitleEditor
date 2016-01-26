@@ -17,7 +17,7 @@ class SubTitleDoc4Smi: SubTitleDoc {
             throw SubTitleError.ParseError(message: "This is not SMI format file")
         }
         
-        let regex = "^<\\s*SYNC\\s+Start\\s*=\\s*([0-9]+)\\s*><\\s*P\\s+Class\\s*=\\s*[a-z_]+\\s*>(<br>)*(.*)"
+        let regex = "^<\\s*SYNC\\s+Start\\s*=\\s*([0-9]+)\\s*><\\s*P\\s+Class\\s*=\\s*[a-z_]+\\s*>(<br>|&nbsp;?)*(.*)"
         var data = [SubTitleData]()
         
         var itemNum: Int = 0
@@ -45,36 +45,34 @@ class SubTitleDoc4Smi: SubTitleDoc {
                 throw SubTitleError.ParseError(message: "RegularExpression Matching is Wrong")
             }
             
-            if text.isEmpty || text.lowercaseString == "&nbsp;" || text.lowercaseString == "&nbsp" {
+            if text.isEmpty {
                 guard let lastData: SubTitleData = data.popLast() else {
                     continue
                 }
                 
                 let eTime = SubTitleTime(milliseconds: millisec)
-                
                 lastData.end = eTime.getReadableTime()
                 
                 let sTime = SubTitleTime(timeInStr: lastData.start)
                 
-                lastData.duration = SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                do {
+                    lastData.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                } catch SubTitleError.ParseError(let message) {
+                    throw SubTitleError.ParseError(message: "\(message) : \(subLine)")
+                }
                 
                 data.append(lastData)
             } else {
-                //let number = String(data.count + 1)
                 if let lastData: SubTitleData = data.popLast() {
                     if lastData.end.isEmpty {
                         let sTime = SubTitleTime(timeInStr: lastData.start)
                         let eTime = SubTitleTime(milliseconds: millisec)
                         lastData.end = eTime.getReadableTime()
-                        lastData.duration = SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                        lastData.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
                     }
                     data.append(lastData)
                 }
                 let sTime = SubTitleTime(milliseconds: millisec)
-                
-                //if text.isEmpty {
-                //    text = " "
-                //}
                 
                 let subData = SubTitleData(num: itemNum++, start: sTime.getReadableTime(), end: "", text: text, duration: "")
                 data.append(subData)
@@ -90,7 +88,7 @@ class SubTitleDoc4Smi: SubTitleDoc {
             let sTime = SubTitleTime(timeInStr: startTime)
             let eTime = sTime + 3000
             item.end = eTime.getReadableTime()
-            item.duration = SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+            item.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
         }
         
         //and check if the last text is " "

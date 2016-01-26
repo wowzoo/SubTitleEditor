@@ -92,7 +92,7 @@ class ViewController: NSViewController {
             self.tableView.reloadData()
             self.tableView.scrollRowToVisible(0)
         } catch SubTitleError.ParseError(let message) {
-            self.outputLabel.stringValue = "Syntax Error : \(message)"
+            self.outputLabel.stringValue = "Error : \(message)"
         } catch SubTitleError.InvalidURLPath {
             self.outputLabel.stringValue = "Error : Invalid URL Path"
         } catch SubTitleError.StreamOpenError {
@@ -468,7 +468,22 @@ extension ViewController {
         case Push
     }
     
-    func changeIntervalInRange(items: [SubTitleData], type: ChangeType) {
+    func changeIntervalInRange(items: [SubTitleData], type: ChangeType) -> Bool {
+        self.outputLabel.stringValue = "Encoding : \(subTitleDoc!.encoding)"
+        
+        // check time integrity
+        if type == .Pull {
+            for item in items {
+                let sTime = SubTitleTime(timeInStr: item.start)
+                let eTime = SubTitleTime(timeInStr: item.end)
+                
+                if sTime.milliseconds - self.intervalTimeAmount < 0 || eTime.milliseconds - self.intervalTimeAmount < 0 {
+                    self.outputLabel.stringValue = "Error : The reduced time will be less then 0"
+                    return false
+                }
+            }
+        }
+        
         for item in items {
             let sTime = SubTitleTime(timeInStr: item.start)
             let eTime = SubTitleTime(timeInStr: item.end)
@@ -478,42 +493,52 @@ extension ViewController {
             item.start = timeChange.start.getReadableTime()
             item.end = timeChange.end.getReadableTime()
         }
+        
+        return true
     }
     
     @IBAction func pullTiming(sender: AnyObject) {
+        guard let subTitleItems = self.subTitleItemsToShow else {
+            return
+        }
+        
         //print("pullTiming")
         if self.applyAllRows {
-            changeIntervalInRange(self.subTitleItemsToShow!, type: .Pull)
-            
-            self.tableView.reloadData()
+            if(changeIntervalInRange(subTitleItems, type: .Pull)) {
+                self.tableView.reloadData()
+            }
         } else {
             let selectedRow = self.tableView.selectedRow
             if selectedRow != -1 {
                 let lastRow = self.subTitleItemsToShow!.count - 1
-                let items = Array(self.subTitleItemsToShow![selectedRow...lastRow])
-                changeIntervalInRange(items, type: .Pull)
-                
-                self.tableView.reloadData()
-                self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+                let items = Array(subTitleItems[selectedRow...lastRow])
+                if(changeIntervalInRange(items, type: .Pull)) {
+                    self.tableView.reloadData()
+                    self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+                }
             }
         }
     }
     
     @IBAction func pushTiming(sender: AnyObject) {
+        guard let subTitleItems = self.subTitleItemsToShow else {
+            return
+        }
+        
         //print("pushTiming")
         if self.applyAllRows {
-            changeIntervalInRange(self.subTitleItemsToShow!, type: .Push)
-            
-            self.tableView.reloadData()
+            if(changeIntervalInRange(subTitleItems, type: .Push)) {
+                self.tableView.reloadData()
+            }
         } else {
             let selectedRow = self.tableView.selectedRow
             if selectedRow != -1 {
                 let lastRow = self.subTitleItemsToShow!.count - 1
-                let items = Array(self.subTitleItemsToShow![selectedRow...lastRow])
-                changeIntervalInRange(items, type: .Push)
-                
-                self.tableView.reloadData()
-                self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+                let items = Array(subTitleItems[selectedRow...lastRow])
+                if(changeIntervalInRange(items, type: .Push)) {
+                    self.tableView.reloadData()
+                    self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+                }
             }
         }
     }

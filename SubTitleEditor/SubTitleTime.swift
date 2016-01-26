@@ -70,10 +70,20 @@ class SubTitleTime {
     }
 }
 
-func - (left: SubTitleTime, right: SubTitleTime) -> Int {
+/**
+ For calculating duration
+*/
+func - (left: SubTitleTime, right: SubTitleTime) throws -> Int {
+    if (left.milliseconds - right.milliseconds) < 0 {
+        throw SubTitleError.ParseError(message: "End time(\(left.getReadableTime())) is less then Start time(\(right.getReadableTime()))")
+    }
+    
     return left.milliseconds - right.milliseconds
 }
 
+/**
+ For time increase or decrease
+*/
 func - (left: SubTitleTime, right: Int) -> SubTitleTime {
     return SubTitleTime(milliseconds: left.milliseconds-right)
 }
