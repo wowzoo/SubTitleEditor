@@ -55,7 +55,11 @@ class SubTitleDoc4Srt: SubTitleDoc {
                 
                 let sTime = SubTitleTime(timeInStr: startTime)
                 let eTime = SubTitleTime(timeInStr: endTime)
-                duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                do {
+                    duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                } catch SubTitleError.ParseError(let message) {
+                    throw SubTitleError.ParseError(message: "\(message) : \(subLine)")
+                }
                 
                 datum = SubTitleData(num: itemNum++, start: startTime, end: endTime, text: "", duration: duration)
                 

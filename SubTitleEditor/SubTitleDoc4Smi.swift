@@ -68,7 +68,11 @@ class SubTitleDoc4Smi: SubTitleDoc {
                         let sTime = SubTitleTime(timeInStr: lastData.start)
                         let eTime = SubTitleTime(milliseconds: millisec)
                         lastData.end = eTime.getReadableTime()
-                        lastData.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                        do {
+                            lastData.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                        } catch SubTitleError.ParseError(let message) {
+                            throw SubTitleError.ParseError(message: "\(message) : \(subLine)")
+                        }
                     }
                     data.append(lastData)
                 }
@@ -88,6 +92,8 @@ class SubTitleDoc4Smi: SubTitleDoc {
             let sTime = SubTitleTime(timeInStr: startTime)
             let eTime = sTime + 3000
             item.end = eTime.getReadableTime()
+            
+            //never raise exception
             item.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
         }
         
