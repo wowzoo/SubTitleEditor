@@ -22,11 +22,10 @@ class OnlyAllowNumberFormatter : NSNumberFormatter {
 
 class ViewController: NSViewController {
 
+    @IBOutlet weak var timePicker: SubTitleTimeintervalPicker!
     @IBOutlet weak var extLabel: NSTextField!
     @IBOutlet weak var outputLabel: NSTextField!
     
-    @IBOutlet weak var intervalDisplay: NSButton!
-    @IBOutlet weak var intervalInput: NSTextField!
     @IBOutlet weak var tableView: NSTableView!
     
     var subTitleDoc: SubTitleDoc?
@@ -46,11 +45,7 @@ class ViewController: NSViewController {
         
         // Do any additional setup after loading the view.
         tableView.registerForDraggedTypes([subTitle, NSURLPboardType])
-        
-        self.intervalDisplay.title = "00:00:00,000"
-        
-        let formatter: OnlyAllowNumberFormatter = OnlyAllowNumberFormatter()
-        self.intervalInput.formatter = formatter
+        timePicker.enabled = true
     }
 
     override var representedObject: AnyObject? {
@@ -74,8 +69,8 @@ class ViewController: NSViewController {
         
         undoManager?.removeAllActions()
         
-        self.intervalInput.stringValue = ""
-        self.intervalDisplay.title = "00:00:00,000"
+        //self.intervalInput.stringValue = ""
+        //self.intervalDisplay.title = "00:00:00,000"
         self.intervalTimeAmount = 0
         self.fileNameIncrement = 1
     }
@@ -470,6 +465,7 @@ extension ViewController {
     
     func changeIntervalInRange(items: [SubTitleData], type: ChangeType) -> Bool {
         self.outputLabel.stringValue = "Encoding : \(subTitleDoc!.encoding)"
+        self.intervalTimeAmount = SubTitleTime(timeInStr: self.timePicker.intervalTimeString).milliseconds
         
         // check time integrity
         if type == .Pull {
@@ -540,17 +536,6 @@ extension ViewController {
                     self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
                 }
             }
-        }
-    }
-    
-    @IBAction func onConvertReadableTime(sender: AnyObject) {
-        if let milliseconds = Int(self.intervalInput.stringValue) {
-            self.intervalTimeAmount = milliseconds
-            
-            let subTitleTime = SubTitleTime(milliseconds: milliseconds)
-            self.intervalDisplay.title = subTitleTime.getReadableTime()
-            
-            self.intervalInput.stringValue = ""
         }
     }
     
