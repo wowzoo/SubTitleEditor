@@ -84,7 +84,7 @@ class SubTitleTimeintervalPicker: NSControl, NSTextViewDelegate {
     var separatorCell3: NSTextFieldCell?
     var separatorCellFrame3: NSRect?
     
-    let separatorCellSize: NSSize = NSSize(width: 6, height: 17)
+    let separatorCellSize: NSSize = NSSize(width: 5, height: 15)
     
     var stepperCell: NSStepperCell?
     var stepperCellFrame: NSRect?
@@ -110,10 +110,10 @@ class SubTitleTimeintervalPicker: NSControl, NSTextViewDelegate {
     }
     
     func setUpCells() {
-        self.hoursComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("00", alignment: .Right), size: NSSize(width: 21, height: 17), max: 24, formatString: "%02d", limit: 10)
-        self.minutesComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("00", alignment: .Right), size: NSSize(width: 21, height: 17), max: 60, formatString: "%02d", limit: 10)
-        self.secondsComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("00", alignment: .Right), size: NSSize(width: 21, height: 17), max: 60, formatString: "%02d", limit: 10)
-        self.millisecondsComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("000", alignment: .Right), size: NSSize(width: 29, height: 17), max: 999, formatString: "%03d", limit: 100)
+        self.hoursComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("00", alignment: .Right), size: NSSize(width: 19, height: 15), max: 24, formatString: "%02d", limit: 10)
+        self.minutesComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("00", alignment: .Right), size: NSSize(width: 19, height: 15), max: 60, formatString: "%02d", limit: 10)
+        self.secondsComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("00", alignment: .Right), size: NSSize(width: 19, height: 15), max: 60, formatString: "%02d", limit: 10)
+        self.millisecondsComponent = SubTitleTimeIntervalCell(cell: self.setupCellWithString("000", alignment: .Right), size: NSSize(width: 27, height: 15), max: 999, formatString: "%03d", limit: 100)
         
         self.hoursComponent!.setNeighbors(nil, right: self.minutesComponent)
         self.minutesComponent!.setNeighbors(self.hoursComponent, right: self.secondsComponent)
@@ -136,10 +136,11 @@ class SubTitleTimeintervalPicker: NSControl, NSTextViewDelegate {
     func setupCellWithString(string: String, alignment: NSTextAlignment) -> NSTextFieldCell {
         let cell: NSTextFieldCell = NSTextFieldCell(textCell: string)
         cell.drawsBackground = true
+        cell.backgroundColor = NSColor.lightGrayColor()
         cell.editable = true
         cell.bordered = false
-        cell.controlSize = self.controlSize
-        cell.font = NSFont.controlContentFontOfSize(NSFont.systemFontSizeForControlSize(self.controlSize))
+        //cell.controlSize = .SmallControlSize
+        cell.font = NSFont.controlContentFontOfSize(NSFont.systemFontSizeForControlSize(.SmallControlSize))
         cell.alignment = alignment
         return cell
     }
@@ -150,19 +151,10 @@ class SubTitleTimeintervalPicker: NSControl, NSTextViewDelegate {
         
         // Draw Control Frame
         var borderFrame: NSRect = self.bounds
-        borderFrame.size.width -= self.stepperCell!.cellSize.width - 1.0
-        let sides: [NSRectEdge] = [.MaxY, .MaxX, .MinX, .MinY, .MaxY]
-        let enabledGrays: [CGFloat] = [0.75, 0.75, 0.75, 0.75]
-        let disabledGrays: [CGFloat] = [0.85, 0.85, 0.85, 0.85]
+        borderFrame.size.width -= self.stepperCell!.cellSize.width - 2.0
         
-        if self.enabled {
-            borderFrame = NSDrawTiledRects(borderFrame, borderFrame, sides, enabledGrays, 4)
-        } else {
-            borderFrame = NSDrawTiledRects(borderFrame, borderFrame, sides, disabledGrays, 4)
-        }
-        
-        NSColor.whiteColor().set()
-        NSRectFill(borderFrame)
+        NSColor.lightGrayColor().setFill()
+        NSBezierPath(roundedRect: borderFrame, xRadius: 5.0, yRadius: 5.0).fill()
         
         // Draw Cells Frame
         let baseFrame: NSRect = self.bounds
@@ -175,7 +167,7 @@ class SubTitleTimeintervalPicker: NSControl, NSTextViewDelegate {
         self.stepperCellFrame = frame
         self.stepperCell!.drawWithFrame(self.stepperCellFrame!, inView: self)
         
-        frame = NSInsetRect(baseFrame, 2.0, 2.0)
+        frame = NSInsetRect(baseFrame, 2.0, 3.0)
         
         // hours cell
         frame.size = self.hoursComponent!.size

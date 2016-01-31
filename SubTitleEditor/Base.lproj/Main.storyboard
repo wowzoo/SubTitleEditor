@@ -961,7 +961,7 @@
                                 </tableHeaderView>
                             </scrollView>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5vC-xa-RS9">
-                                <rect key="frame" x="189" y="467" width="26" height="19"/>
+                                <rect key="frame" x="170" y="467" width="26" height="19"/>
                                 <buttonCell key="cell" type="roundRect" bezelStyle="roundedRect" image="ArrowUp" imagePosition="overlaps" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="sPR-vI-OSf">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="cellTitle"/>
@@ -991,7 +991,7 @@
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="M7l-zi-WKq">
-                                <rect key="frame" x="20" y="467" width="26" height="19"/>
+                                <rect key="frame" x="28" y="467" width="26" height="19"/>
                                 <buttonCell key="cell" type="roundRect" bezelStyle="roundedRect" image="ArrowDown" imagePosition="overlaps" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="yCW-6N-xOq">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="cellTitle"/>
@@ -1001,7 +1001,7 @@
                                 </connections>
                             </button>
                             <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mIQ-je-6Ys" customClass="SubTitleTimeintervalPicker" customModule="SubTitleEditor" customModuleProvider="target">
-                                <rect key="frame" x="54" y="467" width="132" height="23"/>
+                                <rect key="frame" x="54" y="467" width="120" height="23"/>
                             </customView>
                             <button identifier="fromFirstRow" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8Sw-wt-9Ch">
                                 <rect key="frame" x="222" y="477" width="129" height="18"/>
