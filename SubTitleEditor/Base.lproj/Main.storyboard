@@ -654,9 +654,9 @@
                     <window key="window" title="SubTitleEditor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="500" height="400"/>
+                        <rect key="contentRect" x="196" y="240" width="530" height="400"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
-                        <value key="minSize" type="size" width="500" height="400"/>
+                        <value key="minSize" type="size" width="530" height="400"/>
                         <toolbar key="toolbar" implicitIdentifier="7333B694-9E09-4E76-9794-70DEFE5CE266" autosavesConfiguration="NO" displayMode="iconOnly" sizeMode="regular" id="VYF-0t-YtN">
                             <allowedToolbarItems>
                                 <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="4tw-pi-8eD"/>
@@ -1021,6 +1021,16 @@
                                 </buttonCell>
                                 <connections>
                                     <action selector="checkApplyRange:" target="XfG-lQ-9wD" id="g29-2X-WYU"/>
+                                </connections>
+                            </button>
+                            <button identifier="onlySelectedRow" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AE2-ed-3v4">
+                                <rect key="frame" x="356" y="477" width="122" height="18"/>
+                                <buttonCell key="cell" type="radio" title="Only selected row" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="NrY-gd-xDl">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="smallSystem"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="checkApplyRange:" target="XfG-lQ-9wD" id="g1W-36-YNj"/>
                                 </connections>
                             </button>
                         </subviews>

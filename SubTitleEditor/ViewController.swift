@@ -35,10 +35,24 @@ class ViewController: NSViewController {
     
     let subTitle: String = "subTitle"
     
-    var applyAllRows: Bool = true
+    //var applyAllRows: Bool = true
     var intervalTimeAmount: Int = 0
     
     var fileNameIncrement: Int = 1
+    
+    enum ChangeType {
+        case Pull
+        case Push
+    }
+    
+    enum ChangeRange {
+        case All
+        case FromSelectedToEnd
+        case OnlySelected
+        case None
+    }
+    
+    var changeRange: ChangeRange = .All
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,8 +65,6 @@ class ViewController: NSViewController {
     override var representedObject: AnyObject? {
         didSet {
             if let url = representedObject as? NSURL {
-                //print("opening file : \(url.path!)")
-                
                 subTitleDoc = SubTitleDocFactory.Create(url)
                 reloadSubTitleData()
             }
@@ -69,8 +81,6 @@ class ViewController: NSViewController {
         
         undoManager?.removeAllActions()
         
-        //self.intervalInput.stringValue = ""
-        //self.intervalDisplay.title = "00:00:00,000"
         self.intervalTimeAmount = 0
         self.fileNameIncrement = 1
     }
@@ -98,8 +108,6 @@ class ViewController: NSViewController {
     }
     
     func addItems(rows: NSIndexSet, items: AnyObject) {
-        //print("addItems")
-        
         let data = items as! [SubTitleData]
         var i: Int = 0
         var firstIndex: Int = -1
@@ -107,7 +115,6 @@ class ViewController: NSViewController {
             (index: Int, stop) -> Void in
             
             let item = data[i++]
-            //print("\(item.num) : \(item.text)")
 
             self.subTitleItemsToShow?.insert(item, atIndex: index)
             
@@ -134,8 +141,6 @@ class ViewController: NSViewController {
     }
     
     func removeItems(rows: NSIndexSet) {
-        //print("removeItems")
-        
         var items: [SubTitleData] = [SubTitleData]()
         
         var firstIndex: Int = -1
@@ -143,12 +148,10 @@ class ViewController: NSViewController {
             (index: Int, _) -> Void in
             
             let datum: SubTitleData! = self.subTitleItemsToShow?.removeAtIndex(index)
-            //print("\(datum.num) : \(datum.text)")
             items.append(datum)
             
             if self.isTableInSearchMode() {
                 self.subTitleItemsRaw?.removeAtIndex(datum.num)
-                //print("\(datum.num) : \(datum.text)")
                 firstIndex = datum.num
             }
         }
@@ -174,8 +177,6 @@ extension ViewController: NSTableViewDataSource {
     }
     
     func tableView(tableView: NSTableView, writeRowsWithIndexes: NSIndexSet, toPasteboard: NSPasteboard) -> Bool {
-        //print("writeRowsWithIndexes")
-        
         let data = NSKeyedArchiver.archivedDataWithRootObject([writeRowsWithIndexes])
         toPasteboard.declareTypes([subTitle], owner:self)
         toPasteboard.setData(data, forType:subTitle)
@@ -185,8 +186,6 @@ extension ViewController: NSTableViewDataSource {
     
     func tableView(tableView: NSTableView, validateDrop info: NSDraggingInfo, proposedRow row: Int, proposedDropOperation dropOperation: NSTableViewDropOperation) -> NSDragOperation
     {
-        //print("validateDrop")
-        
         if dropOperation == .On {
             return .None
         }
@@ -228,22 +227,17 @@ extension ViewController: NSTableViewDataSource {
     func tableView(tableView: NSTableView, acceptDrop info: NSDraggingInfo, row: Int,
         dropOperation: NSTableViewDropOperation) -> Bool
     {
-        //print("acceptDrop")
-        
         let pb = info.draggingPasteboard()
         
         if let data = pb.dataForType(subTitle) {
             let dataArray: [NSIndexSet]  = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! [NSIndexSet]
             let indexSet = dataArray[0]
             let currentRow  = indexSet.firstIndex
-            //print("move \(currentRow) --> \(row)")
             
             let item = self.subTitleItemsToShow![currentRow]
-            //print(item.text)
             
             if currentRow < row {
                 //move down
-                //print("move down")
                 
                 /* in case of moving down
                  * 1. insert first
@@ -264,7 +258,6 @@ extension ViewController: NSTableViewDataSource {
                 
             } else if currentRow > row {
                 //move up
-                //print("move up")
                 
                 /* in case of moving up
                  * 1. remove first
@@ -346,9 +339,6 @@ extension ViewController {
     }
     
     @IBAction func onEnterInSearchField(sender: AnyObject) {
-        //print("onEnterInSearchField")
-        
-        //print("number of rows : \(self.tableView.numberOfRows)")
         //To prevent exception when no subtitle is loaded. (initial state)
         if self.subTitleItemsToShow == nil {
             return
@@ -360,7 +350,6 @@ extension ViewController {
             
             if searchText.isEmpty {
                 if self.subTitleItemsRaw != nil {
-                    //print("reload all")
                     self.subTitleItemsToShow = self.subTitleItemsRaw
                     self.subTitleItemsRaw = nil
                     undoManager?.removeAllActions()
@@ -385,12 +374,9 @@ extension ViewController {
     }
 
     @IBAction func onEnterInTextField(sender: NSTextField) {
-        //print("onEnterInTextField")
-        
         let selectedRow = self.tableView.selectedRow
         if selectedRow != -1 {
             let item: SubTitleData! = self.subTitleItemsToShow?[selectedRow]
-            //print("\(item.num) : \(item.text)")
             item.text = sender.stringValue
             self.tableView.reloadData()
         }
@@ -413,7 +399,6 @@ extension ViewController {
         }
         
         self.outputLabel.stringValue = "Saved : \(filePath)\n"
-        //print("save file path : \(filePath)")
         
         //create empty file
         let _ = fileManager.createFileAtPath(filePath, contents: nil, attributes: nil)
@@ -421,7 +406,6 @@ extension ViewController {
         //wirte data to file with utf-8
         if let fileHandle = NSFileHandle(forWritingAtPath: filePath) {
             defer {
-                //print("call closeFile")
                 fileHandle.closeFile()
             }
             
@@ -453,14 +437,8 @@ extension ViewController {
     }
     
     @IBAction func removeLine(sender: AnyObject) {
-        //print("removeLine")
         let rows = self.tableView.selectedRowIndexes
         self.removeItems(rows)
-    }
-    
-    enum ChangeType {
-        case Pull
-        case Push
     }
     
     func changeIntervalInRange(items: [SubTitleData], type: ChangeType) -> Bool {
@@ -498,16 +476,24 @@ extension ViewController {
             return
         }
         
-        //print("pullTiming")
-        if self.applyAllRows {
+        if self.changeRange == .All {
             if(changeIntervalInRange(subTitleItems, type: .Pull)) {
                 self.tableView.reloadData()
             }
-        } else {
+        } else if self.changeRange == .FromSelectedToEnd {
             let selectedRow = self.tableView.selectedRow
             if selectedRow != -1 {
                 let lastRow = self.subTitleItemsToShow!.count - 1
                 let items = Array(subTitleItems[selectedRow...lastRow])
+                if(changeIntervalInRange(items, type: .Pull)) {
+                    self.tableView.reloadData()
+                    self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+                }
+            }
+        } else if self.changeRange == .OnlySelected {
+            let selectedRow = self.tableView.selectedRow
+            if selectedRow != -1 {
+                let items = Array(arrayLiteral: subTitleItems[selectedRow])
                 if(changeIntervalInRange(items, type: .Pull)) {
                     self.tableView.reloadData()
                     self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
@@ -521,12 +507,11 @@ extension ViewController {
             return
         }
         
-        //print("pushTiming")
-        if self.applyAllRows {
+        if self.changeRange == .All {
             if(changeIntervalInRange(subTitleItems, type: .Push)) {
                 self.tableView.reloadData()
             }
-        } else {
+        } else if self.changeRange == .FromSelectedToEnd {
             let selectedRow = self.tableView.selectedRow
             if selectedRow != -1 {
                 let lastRow = self.subTitleItemsToShow!.count - 1
@@ -536,18 +521,27 @@ extension ViewController {
                     self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
                 }
             }
+        } else if self.changeRange == .OnlySelected {
+            let selectedRow = self.tableView.selectedRow
+            if selectedRow != -1 {
+                let items = Array(arrayLiteral: subTitleItems[selectedRow])
+                if(changeIntervalInRange(items, type: .Push)) {
+                    self.tableView.reloadData()
+                    self.tableView.selectRowIndexes(NSIndexSet(index: selectedRow), byExtendingSelection: false)
+                }
+            }
         }
     }
     
     @IBAction func checkApplyRange(sender: NSButton) {
-        //print("checkApplyRange")
-        
         if sender.identifier == "fromFirstRow" {
-            //print("From the first row")
-            self.applyAllRows = true
+            self.changeRange = .All
         } else if sender.identifier == "fromSelectedRow" {
-            //print("From the selected row")
-            self.applyAllRows = false
+            self.changeRange = .FromSelectedToEnd
+        } else if sender.identifier == "onlySelectedRow" {
+            self.changeRange = .OnlySelected
+        } else {
+            self.changeRange = .None
         }
     }
 }
@@ -561,6 +555,5 @@ extension ViewController: NSMenuDelegate {
         for item in mItems {
             item.enabled = mItemEnable
         }
-        
     }
 }
