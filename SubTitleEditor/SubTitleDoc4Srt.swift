@@ -103,7 +103,7 @@ class SubTitleDoc4Srt: SubTitleDoc {
         * 3. Subtitle text itself on one or more lines
         * 4. A blank line containing no text, indicating the end of this subtitle[9]
         */
-        var count: Int = 1
+        var count: Int = 0
         
         for line in lines {
             if line.isEmpty {

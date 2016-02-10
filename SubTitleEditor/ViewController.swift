@@ -429,7 +429,7 @@ extension ViewController {
                 let datum = subTitleItems[num]
                 let subTitleText = datum.text.stringByReplacingOccurrencesOfString("<br>", withString: "\n", options: .CaseInsensitiveSearch)
                 
-                let no = "\(num+1)\n\(datum.start) --> \(datum.end)\n\(subTitleText)\n\n"
+                let no = "\(num)\n\(datum.start) --> \(datum.end)\n\(subTitleText)\n\n"
                 if let dataToWrite = no.dataUsingEncoding(NSUTF8StringEncoding) {
                     fileHandle.writeData(dataToWrite)
                 }
