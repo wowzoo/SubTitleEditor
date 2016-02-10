@@ -60,8 +60,6 @@ class SubTitleDoc {
         var convertedString: NSString?
         self.enc = NSString.stringEncodingForData(tmpData, encodingOptions: nil, convertedString: &convertedString, usedLossyConversion: nil)
         
-        //print(String.localizedNameOfStringEncoding(enc) + " is used")
-        
         guard let lines = convertedString?.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet()) else {
             throw SubTitleError.ParseError(message: "Separating Newline Error")
         }
