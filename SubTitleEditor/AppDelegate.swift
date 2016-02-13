@@ -10,6 +10,7 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
+    
     func applicationShouldHandleReopen(sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         
         if !flag {
@@ -28,7 +29,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(aNotification: NSNotification) {
         // Insert code here to tear down your application
     }
-
-
+    
+    func application(sender: NSApplication, openFile filename: String) -> Bool {
+        //print(filename)
+        
+        for window in sender.windows {
+            if !window.visible {
+                window.makeKeyAndOrderFront(self)
+            }
+            
+            window.contentViewController?.representedObject = NSURL(fileURLWithPath: filename)
+        }
+        
+//        guard let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController else {
+//            return false
+//        }
+//        
+//        controller.representedObject = url
+        
+        return true
+    }
 }
 

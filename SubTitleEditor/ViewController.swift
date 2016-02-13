@@ -59,9 +59,9 @@ class ViewController: NSViewController {
         
         // Do any additional setup after loading the view.
         tableView.registerForDraggedTypes([subTitle, NSURLPboardType])
-        timePicker.enabled = true
+        //timePicker.enabled = true
     }
-
+    
     override var representedObject: AnyObject? {
         didSet {
             if let url = representedObject as? NSURL {
@@ -96,6 +96,15 @@ class ViewController: NSViewController {
             self.outputLabel.stringValue = "Encoding : \(subTitleDoc!.encoding)"
             self.tableView.reloadData()
             self.tableView.scrollRowToVisible(0)
+            
+//            let alert = NSAlert()
+//            alert.messageText = "Warning"
+//            alert.addButtonWithTitle("OK")
+//            alert.informativeText = "There are problems, please resolve these first"
+//            
+//            alert.beginSheetModalForWindow(self.view.window!, completionHandler: nil)
+
+            
         } catch SubTitleError.ParseError(let message) {
             self.outputLabel.stringValue = "Error : \(message)"
         } catch SubTitleError.InvalidURLPath {

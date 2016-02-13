@@ -46,23 +46,34 @@ class SubTitleDoc4Smi: SubTitleDoc {
             }
             
             if text.isEmpty {
+                
                 guard let lastData: SubTitleData = data.popLast() else {
                     continue
                 }
                 
-                let eTime = SubTitleTime(milliseconds: millisec)
-                lastData.end = eTime.getReadableTime()
-                
-                let sTime = SubTitleTime(timeInStr: lastData.start)
-                
-                do {
-                    lastData.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
-                } catch SubTitleError.ParseError(let message) {
-                    throw SubTitleError.ParseError(message: "\(message) : \(subLine)")
+                // 자막이 &nbsp 나 빈칸으로 종료시점을 잡는 경우
+                // <SYNC Start=1372509><P Class=ENCC>만약 당신이 틀렸다면요?
+                // <SYNC Start=1373780><P Class=ENCC>&nbsp;
+                // 또는 
+                // <SYNC Start=1372509><P Class=ENCC>만약 당신이 틀렸다면요?
+                // <SYNC Start=1373780><P Class=ENCC>
+                if lastData.end.isEmpty {
+                    let sTime = SubTitleTime(timeInStr: lastData.start)
+                    let eTime = SubTitleTime(milliseconds: millisec)
+                    lastData.end = eTime.getReadableTime()
+                    do {
+                        lastData.duration = try SubTitleTime(milliseconds: eTime - sTime).getReadableTime()
+                    } catch SubTitleError.ParseError(let message) {
+                        throw SubTitleError.ParseError(message: "\(message) : \(subLine)")
+                    }
                 }
                 
                 data.append(lastData)
             } else {
+                // 자막이 
+                // <SYNC Start=1372509><P Class=ENCC>만약 당신이 틀렸다면요?
+                // <SYNC Start=1373780><P Class=ENCC>운명이 우릴 지금 있게 만든거야.
+                // 이런 식으로 되어 있는 경우 종료 시점을 다음자막 시작 시점으로 잡는다.
                 if let lastData: SubTitleData = data.popLast() {
                     if lastData.end.isEmpty {
                         let sTime = SubTitleTime(timeInStr: lastData.start)
